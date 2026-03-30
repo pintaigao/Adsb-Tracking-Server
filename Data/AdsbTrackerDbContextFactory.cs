@@ -14,6 +14,7 @@ public sealed class AdsbTrackerDbContextFactory : IDesignTimeDbContextFactory<Ad
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: false)
             .AddJsonFile($"appsettings.{environment}.json", optional: true)
+            .AddJsonFile("appsettings.Local.json", optional: true)
             .AddEnvironmentVariables()
             .Build();
 
