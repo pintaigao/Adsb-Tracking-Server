@@ -7,404 +7,353 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ADSB.Tracker.Server.Services;
 
-public sealed class TrackScheduleService(
-    AdsbTrackerDbContext dbContext,
-    PiTrackSourceService piTrackSourceService,
-    TrackExportService trackExportService,
-    FlightImportService flightImportService,
-    ILogger<TrackScheduleService> logger)
-{
-    public async Task<TrackScheduleDetailResponse> CreateAsync(
-        string userId,
-        CreateTrackScheduleRequest request,
-        CancellationToken cancellationToken)
-    {
-        var normalized = NormalizeAndValidate(request);
-        var now = DateTime.UtcNow;
+public sealed class TrackScheduleService(AdsbTrackerDbContext dbContext, PiTrackSourceService piTrackSourceService, TrackExportService trackExportService, FlightImportService flightImportService, ILogger<TrackScheduleService> logger) {
+	public async Task<TrackScheduleDetailResponse> CreateAsync(
+		string userId,
+		CreateTrackScheduleRequest request,
+		CancellationToken cancellationToken) {
+		var normalized = NormalizeAndValidate(request);
+		var now = DateTime.UtcNow;
 
-        var schedule = new WatchSchedule
-        {
-            UserId = userId,
-            DisplayName = normalized.DisplayName,
-            TargetType = normalized.TargetType,
-            TargetValue = normalized.TargetValue,
-            WatchDateUtc = normalized.WatchDateUtc,
-            StartZulu = normalized.StartZulu,
-            EndZulu = normalized.EndZulu,
-            Status = TrackScheduleStatuses.Scheduled,
-            CreatedAtUtc = now,
-            UpdatedAtUtc = now,
-        };
+		var schedule = new WatchSchedule {
+			UserId = userId,
+			DisplayName = normalized.DisplayName,
+			TargetType = normalized.TargetType,
+			TargetValue = normalized.TargetValue,
+			WatchDateUtc = normalized.WatchDateUtc,
+			StartZulu = normalized.StartZulu,
+			EndZulu = normalized.EndZulu,
+			Status = TrackScheduleStatuses.Scheduled,
+			CreatedAtUtc = now,
+			UpdatedAtUtc = now,
+		};
 
-        dbContext.WatchSchedules.Add(schedule);
-        await dbContext.SaveChangesAsync(cancellationToken);
+		dbContext.WatchSchedules.Add(schedule);
+		await dbContext.SaveChangesAsync(cancellationToken);
 
-        return MapDetail(schedule, null, []);
-    }
+		return MapDetail(schedule, null, []);
+	}
 
-    public async Task<IReadOnlyList<TrackScheduleListItemResponse>> ListAsync(
-        string userId,
-        CancellationToken cancellationToken)
-    {
-        var schedules = await dbContext.WatchSchedules
-            .AsNoTracking()
-            .Where(x => x.UserId == userId)
-            .OrderByDescending(x => x.CreatedAtUtc)
-            .ToListAsync(cancellationToken);
+	public async Task<IReadOnlyList<TrackScheduleListItemResponse>> ListAsync(string userId, CancellationToken cancellationToken) {
+		var schedules = await dbContext.WatchSchedules
+			.AsNoTracking()
+			.Where(x => x.UserId == userId && x.Status != TrackScheduleStatuses.Archived)
+			.OrderByDescending(x => x.CreatedAtUtc)
+			.ToListAsync(cancellationToken);
 
-        var latestExecutions = await LoadLatestExecutionsAsync(schedules, cancellationToken);
+		var latestExecutions = await LoadLatestExecutionsAsync(schedules, cancellationToken);
 
-        return schedules
-            .Select(schedule =>
-            {
-                latestExecutions.TryGetValue(schedule.Id, out var execution);
-                return MapListItem(schedule, execution);
-            })
-            .ToList();
-    }
+		return schedules
+			.Select(schedule => {
+				latestExecutions.TryGetValue(schedule.Id, out var execution);
+				return MapListItem(schedule, execution);
+			})
+			.ToList();
+	}
 
-    public async Task<TrackScheduleDetailResponse?> GetAsync(
-        string userId,
-        long id,
-        CancellationToken cancellationToken)
-    {
-        var schedule = await dbContext.WatchSchedules
-            .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.UserId == userId && x.Id == id, cancellationToken);
+	public async Task<TrackScheduleDetailResponse?> GetAsync(
+		string userId,
+		long id,
+		CancellationToken cancellationToken) {
+		var schedule = await dbContext.WatchSchedules
+			.AsNoTracking()
+			.FirstOrDefaultAsync(x => x.UserId == userId && x.Id == id, cancellationToken);
 
-        if (schedule is null)
-        {
-            return null;
-        }
+		if (schedule is null) {
+			return null;
+		}
 
-        var executions = await dbContext.WatchExecutions
-            .AsNoTracking()
-            .Where(x => x.UserId == userId && x.ScheduleId == id)
-            .OrderByDescending(x => x.CreatedAtUtc)
-            .ToListAsync(cancellationToken);
+		var executions = await dbContext.WatchExecutions
+			.AsNoTracking()
+			.Where(x => x.UserId == userId && x.ScheduleId == id)
+			.OrderByDescending(x => x.CreatedAtUtc)
+			.ToListAsync(cancellationToken);
 
-        return MapDetail(schedule, executions.FirstOrDefault(), executions);
-    }
+		return MapDetail(schedule, executions.FirstOrDefault(), executions);
+	}
 
-    public async Task<bool> CancelAsync(string userId, long id, CancellationToken cancellationToken)
-    {
-        var schedule = await dbContext.WatchSchedules
-            .FirstOrDefaultAsync(x => x.UserId == userId && x.Id == id, cancellationToken);
+	public async Task<bool> CancelAsync(string userId, long id, CancellationToken cancellationToken) {
+		var schedule = await dbContext.WatchSchedules
+			.FirstOrDefaultAsync(x => x.UserId == userId && x.Id == id, cancellationToken);
 
-        if (schedule is null || !string.Equals(schedule.Status, TrackScheduleStatuses.Scheduled, StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
+		if (schedule is null || !string.Equals(schedule.Status, TrackScheduleStatuses.Scheduled, StringComparison.OrdinalIgnoreCase)) {
+			return false;
+		}
 
-        schedule.Status = TrackScheduleStatuses.Cancelled;
-        schedule.UpdatedAtUtc = DateTime.UtcNow;
-        await dbContext.SaveChangesAsync(cancellationToken);
-        return true;
-    }
+		schedule.Status = TrackScheduleStatuses.Cancelled;
+		schedule.UpdatedAtUtc = DateTime.UtcNow;
+		await dbContext.SaveChangesAsync(cancellationToken);
+		return true;
+	}
 
-    public async Task<IReadOnlyList<TrackExecutionResponse>?> ListExecutionsAsync(
-        string userId,
-        long scheduleId,
-        CancellationToken cancellationToken)
-    {
-        var exists = await dbContext.WatchSchedules
-            .AsNoTracking()
-            .AnyAsync(x => x.UserId == userId && x.Id == scheduleId, cancellationToken);
+	public async Task<bool> ArchiveAsync(string userId, long id, CancellationToken cancellationToken) {
+		var schedule = await dbContext.WatchSchedules
+			.FirstOrDefaultAsync(x => x.UserId == userId && x.Id == id, cancellationToken);
 
-        if (!exists)
-        {
-            return null;
-        }
+		if (schedule is null || !CanArchive(schedule.Status)) {
+			return false;
+		}
 
-        var executions = await dbContext.WatchExecutions
-            .AsNoTracking()
-            .Where(x => x.UserId == userId && x.ScheduleId == scheduleId)
-            .OrderByDescending(x => x.CreatedAtUtc)
-            .ToListAsync(cancellationToken);
+		schedule.Status = TrackScheduleStatuses.Archived;
+		schedule.UpdatedAtUtc = DateTime.UtcNow;
+		await dbContext.SaveChangesAsync(cancellationToken);
+		return true;
+	}
 
-        return executions.Select(MapExecution).ToList();
-    }
+	public async Task<IReadOnlyList<TrackExecutionResponse>?> ListExecutionsAsync(
+		string userId,
+		long scheduleId,
+		CancellationToken cancellationToken) {
+		var exists = await dbContext.WatchSchedules
+			.AsNoTracking()
+			.AnyAsync(x => x.UserId == userId && x.Id == scheduleId, cancellationToken);
 
-    public async Task<(string FilePath, string DownloadName)?> GetExecutionDownloadAsync(
-        string userId,
-        long executionId,
-        CancellationToken cancellationToken)
-    {
-        var execution = await dbContext.WatchExecutions
-            .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.UserId == userId && x.Id == executionId, cancellationToken);
+		if (!exists) {
+			return null;
+		}
 
-        if (execution is null || string.IsNullOrWhiteSpace(execution.OutputKmlPath) || !File.Exists(execution.OutputKmlPath))
-        {
-            return null;
-        }
+		var executions = await dbContext.WatchExecutions
+			.AsNoTracking()
+			.Where(x => x.UserId == userId && x.ScheduleId == scheduleId)
+			.OrderByDescending(x => x.CreatedAtUtc)
+			.ToListAsync(cancellationToken);
 
-        return (execution.OutputKmlPath, Path.GetFileName(execution.OutputKmlPath));
-    }
+		return executions.Select(MapExecution).ToList();
+	}
 
-    public async Task ExecuteDueSchedulesAsync(CancellationToken cancellationToken)
-    {
-        var now = DateTime.UtcNow;
-        var nowDate = DateOnly.FromDateTime(now);
-        var nowTime = TimeOnly.FromDateTime(now);
+	public async Task<(string FilePath, string DownloadName)?> GetExecutionDownloadAsync(
+		string userId,
+		long executionId,
+		CancellationToken cancellationToken) {
+		var execution = await dbContext.WatchExecutions
+			.AsNoTracking()
+			.FirstOrDefaultAsync(x => x.UserId == userId && x.Id == executionId, cancellationToken);
 
-        var dueSchedules = await dbContext.WatchSchedules
-            .Where(x =>
-                x.Status == TrackScheduleStatuses.Scheduled &&
-                (x.WatchDateUtc < nowDate ||
-                 (x.WatchDateUtc == nowDate && x.EndZulu <= nowTime)))
-            .OrderBy(x => x.WatchDateUtc)
-            .ThenBy(x => x.EndZulu)
-            .ToListAsync(cancellationToken);
+		if (execution is null || string.IsNullOrWhiteSpace(execution.OutputKmlPath) || !File.Exists(execution.OutputKmlPath)) {
+			return null;
+		}
 
-        foreach (var schedule in dueSchedules)
-        {
-            await ExecuteSingleScheduleAsync(schedule, cancellationToken);
-        }
-    }
+		return (execution.OutputKmlPath, Path.GetFileName(execution.OutputKmlPath));
+	}
 
-    private async Task ExecuteSingleScheduleAsync(WatchSchedule schedule, CancellationToken cancellationToken)
-    {
-        var now = DateTime.UtcNow;
-        schedule.Status = TrackScheduleStatuses.Running;
-        schedule.UpdatedAtUtc = now;
+	public async Task ExecuteDueSchedulesAsync(CancellationToken cancellationToken) {
+		var now = DateTime.UtcNow;
+		var nowDate = DateOnly.FromDateTime(now);
+		var nowTime = TimeOnly.FromDateTime(now);
 
-        var execution = new WatchExecution
-        {
-            ScheduleId = schedule.Id,
-            UserId = schedule.UserId,
-            Status = TrackScheduleStatuses.Running,
-            StartedAtUtc = now,
-            CreatedAtUtc = now,
-        };
+		var dueSchedules = await dbContext.WatchSchedules
+			.Where(x => x.Status == TrackScheduleStatuses.Scheduled && (x.WatchDateUtc < nowDate || (x.WatchDateUtc == nowDate && x.EndZulu <= nowTime)))
+			.OrderBy(x => x.WatchDateUtc)
+			.ThenBy(x => x.EndZulu)
+			.ToListAsync(cancellationToken);
 
-        dbContext.WatchExecutions.Add(execution);
-        await dbContext.SaveChangesAsync(cancellationToken);
+		foreach (var schedule in dueSchedules) {
+			await ExecuteSingleScheduleAsync(schedule, cancellationToken);
+		}
+	}
 
-        try
-        {
-            var resolvedTargetValue = await ResolveTargetValueAsync(schedule, cancellationToken);
-            var fetched = await piTrackSourceService.FetchRawFileAsync(
-                schedule.WatchDateUtc,
-                execution.Id,
-                cancellationToken);
+	private async Task ExecuteSingleScheduleAsync(WatchSchedule schedule, CancellationToken cancellationToken) {
+		var now = DateTime.UtcNow;
+		schedule.Status = TrackScheduleStatuses.Running;
+		schedule.UpdatedAtUtc = now;
 
-            if (fetched is null)
-            {
-                execution.Status = TrackScheduleStatuses.NoData;
-                execution.ErrorMessage = "Raw ADS-B log not found for the requested UTC date.";
-                execution.FinishedAtUtc = DateTime.UtcNow;
-                schedule.Status = TrackScheduleStatuses.NoData;
-                schedule.LatestExecutionId = execution.Id;
-                schedule.UpdatedAtUtc = DateTime.UtcNow;
-                await dbContext.SaveChangesAsync(cancellationToken);
-                return;
-            }
+		var execution = new WatchExecution {
+			ScheduleId = schedule.Id,
+			UserId = schedule.UserId,
+			Status = TrackScheduleStatuses.Running,
+			StartedAtUtc = now,
+			CreatedAtUtc = now,
+		};
 
-            execution.RemoteRawPath = fetched.Value.RemotePath;
-            execution.LocalRawPath = fetched.Value.LocalPath;
+		dbContext.WatchExecutions.Add(execution);
+		await dbContext.SaveChangesAsync(cancellationToken);
 
-            var export = await trackExportService.ExportAsync(
-                fetched.Value.LocalPath,
-                schedule.TargetType,
-                resolvedTargetValue,
-                schedule.DisplayName,
-                schedule.WatchDateUtc,
-                schedule.StartZulu,
-                schedule.EndZulu,
-                execution.Id,
-                cancellationToken);
+		try {
+			var resolvedTargetValue = await ResolveTargetValueAsync(schedule, cancellationToken);
+			var fetched = await piTrackSourceService.FetchRawFileAsync(schedule.WatchDateUtc, execution.Id, cancellationToken);
 
-            execution.MatchedPointCount = export.MatchedPointCount;
-            execution.OutputKmlPath = export.OutputPath;
-            execution.FinishedAtUtc = DateTime.UtcNow;
-            execution.Status = export.OutputPath is null
-                ? TrackScheduleStatuses.NoData
-                : TrackScheduleStatuses.Completed;
+			if (fetched is null) {
+				execution.Status = TrackScheduleStatuses.NoData;
+				execution.ErrorMessage = "Raw ADS-B log not found for the requested UTC date.";
+				execution.FinishedAtUtc = DateTime.UtcNow;
+				schedule.Status = TrackScheduleStatuses.NoData;
+				schedule.LatestExecutionId = execution.Id;
+				schedule.UpdatedAtUtc = DateTime.UtcNow;
+				await dbContext.SaveChangesAsync(cancellationToken);
+				return;
+			}
 
-            schedule.Status = execution.Status;
-            schedule.LatestExecutionId = execution.Id;
-            schedule.UpdatedAtUtc = DateTime.UtcNow;
+			execution.RemoteRawPath = fetched.Value.RemotePath;
+			execution.LocalRawPath = fetched.Value.LocalPath;
+			var export = await trackExportService.ExportAsync(fetched.Value.LocalPath, schedule.TargetType, resolvedTargetValue, schedule.DisplayName, schedule.WatchDateUtc, schedule.StartZulu, schedule.EndZulu, execution.Id, cancellationToken);
 
-            await dbContext.SaveChangesAsync(cancellationToken);
+			execution.MatchedPointCount = export.MatchedPointCount;
+			execution.OutputKmlPath = export.OutputPath;
+			execution.FinishedAtUtc = DateTime.UtcNow;
+			execution.Status = export.OutputPath is null ? TrackScheduleStatuses.NoData : TrackScheduleStatuses.Completed;
 
-            if (!string.IsNullOrWhiteSpace(execution.OutputKmlPath))
-            {
-                try
-                {
-                    await flightImportService.ImportScheduledTrackAsync(
-                        schedule,
-                        execution,
-                        cancellationToken);
-                }
-                catch (Exception importEx)
-                {
-                    logger.LogError(
-                        importEx,
-                        "Track schedule execution {ExecutionId} completed but flight import failed",
-                        execution.Id);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Track schedule execution {ExecutionId} failed", execution.Id);
-            execution.Status = TrackScheduleStatuses.Failed;
-            execution.ErrorMessage = ex.Message;
-            execution.FinishedAtUtc = DateTime.UtcNow;
+			schedule.Status = execution.Status;
+			schedule.LatestExecutionId = execution.Id;
+			schedule.UpdatedAtUtc = DateTime.UtcNow;
 
-            schedule.Status = TrackScheduleStatuses.Failed;
-            schedule.LatestExecutionId = execution.Id;
-            schedule.UpdatedAtUtc = DateTime.UtcNow;
-            await dbContext.SaveChangesAsync(cancellationToken);
-        }
-    }
+			await dbContext.SaveChangesAsync(cancellationToken);
 
-    private async Task<string> ResolveTargetValueAsync(WatchSchedule schedule, CancellationToken cancellationToken)
-    {
-        if (!string.Equals(schedule.TargetType, TrackTargetTypes.Tail, StringComparison.OrdinalIgnoreCase))
-        {
-            return schedule.TargetValue;
-        }
+			if (!string.IsNullOrWhiteSpace(execution.OutputKmlPath)) {
+				try {
+					await flightImportService.ImportScheduledTrackAsync(schedule, execution, cancellationToken);
+				} catch (Exception importEx) {
+					logger.LogError(importEx, "Track schedule execution {ExecutionId} completed but flight import failed", execution.Id);
+				}
+			}
+		} catch (Exception ex) {
+			logger.LogError(ex, "Track schedule execution {ExecutionId} failed", execution.Id);
+			execution.Status = TrackScheduleStatuses.Failed;
+			execution.ErrorMessage = ex.Message;
+			execution.FinishedAtUtc = DateTime.UtcNow;
 
-        var normalizedTail = schedule.TargetValue.Trim().ToUpperInvariant();
-        var mapping = await dbContext.TailHexMappings
-            .AsNoTracking()
-            .Where(x => x.Tail == normalizedTail && (x.UserId == null || x.UserId == schedule.UserId))
-            .OrderByDescending(x => x.UserId == schedule.UserId)
-            .ThenByDescending(x => x.UpdatedAtUtc)
-            .FirstOrDefaultAsync(cancellationToken);
+			schedule.Status = TrackScheduleStatuses.Failed;
+			schedule.LatestExecutionId = execution.Id;
+			schedule.UpdatedAtUtc = DateTime.UtcNow;
+			await dbContext.SaveChangesAsync(cancellationToken);
+		}
+	}
 
-        return mapping?.Hex ?? normalizedTail;
-    }
+	private async Task<string> ResolveTargetValueAsync(WatchSchedule schedule, CancellationToken cancellationToken) {
+		if (!string.Equals(schedule.TargetType, TrackTargetTypes.Tail, StringComparison.OrdinalIgnoreCase)) {
+			return schedule.TargetValue;
+		}
 
-    private static NormalizedRequest NormalizeAndValidate(CreateTrackScheduleRequest request)
-    {
-        var displayName = request.DisplayName.Trim();
-        if (string.IsNullOrWhiteSpace(displayName))
-        {
-            throw new ArgumentException("displayName is required");
-        }
+		var normalizedTail = schedule.TargetValue.Trim().ToUpperInvariant();
+		var mapping = await dbContext.TailHexMappings
+			.AsNoTracking()
+			.Where(x => x.Tail == normalizedTail && (x.UserId == null || x.UserId == schedule.UserId))
+			.OrderByDescending(x => x.UserId == schedule.UserId)
+			.ThenByDescending(x => x.UpdatedAtUtc)
+			.FirstOrDefaultAsync(cancellationToken);
 
-        var targetType = request.TargetType.Trim().ToLowerInvariant();
-        if (!TrackTargetTypes.Allowed.Contains(targetType))
-        {
-            throw new ArgumentException("targetType must be one of: tail, hex, flight");
-        }
+		return mapping?.Hex ?? normalizedTail;
+	}
 
-        var targetValue = request.TargetValue.Trim();
-        if (string.IsNullOrWhiteSpace(targetValue))
-        {
-            throw new ArgumentException("targetValue is required");
-        }
+	private static bool CanArchive(string status)
+		=> string.Equals(status, TrackScheduleStatuses.Completed, StringComparison.OrdinalIgnoreCase)
+		|| string.Equals(status, TrackScheduleStatuses.NoData, StringComparison.OrdinalIgnoreCase)
+		|| string.Equals(status, TrackScheduleStatuses.Cancelled, StringComparison.OrdinalIgnoreCase)
+		|| string.Equals(status, TrackScheduleStatuses.Failed, StringComparison.OrdinalIgnoreCase);
 
-        if (!DateOnly.TryParseExact(request.WatchDateUtc, "MM/dd/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var watchDateUtc))
-        {
-            throw new ArgumentException("watchDateUtc must be MM/dd/yyyy");
-        }
+	private static NormalizedRequest NormalizeAndValidate(CreateTrackScheduleRequest request) {
+		var displayName = request.DisplayName.Trim();
+		if (string.IsNullOrWhiteSpace(displayName)) {
+			throw new ArgumentException("displayName is required");
+		}
 
-        if (!TimeOnly.TryParseExact(request.StartZulu, "HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var startZulu))
-        {
-            throw new ArgumentException("startZulu must be HH:mm");
-        }
+		var targetType = request.TargetType.Trim().ToLowerInvariant();
+		if (!TrackTargetTypes.Allowed.Contains(targetType)) {
+			throw new ArgumentException("targetType must be one of: tail, hex, flight");
+		}
 
-        if (!TimeOnly.TryParseExact(request.EndZulu, "HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var endZulu))
-        {
-            throw new ArgumentException("endZulu must be HH:mm");
-        }
+		var targetValue = request.TargetValue.Trim();
+		if (string.IsNullOrWhiteSpace(targetValue)) {
+			throw new ArgumentException("targetValue is required");
+		}
 
-        if (startZulu >= endZulu)
-        {
-            throw new ArgumentException("startZulu must be earlier than endZulu");
-        }
+		if (!DateOnly.TryParseExact(request.WatchDateUtc, "MM/dd/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var watchDateUtc)) {
+			throw new ArgumentException("watchDateUtc must be MM/dd/yyyy");
+		}
 
-        return new NormalizedRequest(displayName, targetType, targetValue, watchDateUtc, startZulu, endZulu);
-    }
+		if (!TimeOnly.TryParseExact(request.StartZulu, "HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var startZulu)) {
+			throw new ArgumentException("startZulu must be HH:mm");
+		}
 
-    private async Task<Dictionary<long, WatchExecution>> LoadLatestExecutionsAsync(
-        IReadOnlyList<WatchSchedule> schedules,
-        CancellationToken cancellationToken)
-    {
-        var executionIds = schedules
-            .Where(x => x.LatestExecutionId.HasValue)
-            .Select(x => x.LatestExecutionId!.Value)
-            .Distinct()
-            .ToList();
+		if (!TimeOnly.TryParseExact(request.EndZulu, "HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var endZulu)) {
+			throw new ArgumentException("endZulu must be HH:mm");
+		}
 
-        if (executionIds.Count == 0)
-        {
-            return [];
-        }
+		if (startZulu >= endZulu) {
+			throw new ArgumentException("startZulu must be earlier than endZulu");
+		}
 
-        var executions = await dbContext.WatchExecutions
-            .AsNoTracking()
-            .Where(x => executionIds.Contains(x.Id))
-            .ToListAsync(cancellationToken);
+		return new NormalizedRequest(displayName, targetType, targetValue, watchDateUtc, startZulu, endZulu);
+	}
 
-        return schedules
-            .Where(x => x.LatestExecutionId.HasValue)
-            .Join(
-                executions,
-                schedule => schedule.LatestExecutionId!.Value,
-                execution => execution.Id,
-                (schedule, execution) => new { schedule.Id, execution })
-            .ToDictionary(x => x.Id, x => x.execution);
-    }
+	private async Task<Dictionary<long, WatchExecution>> LoadLatestExecutionsAsync(
+		IReadOnlyList<WatchSchedule> schedules,
+		CancellationToken cancellationToken) {
+		var executionIds = schedules
+			.Where(x => x.LatestExecutionId.HasValue)
+			.Select(x => x.LatestExecutionId!.Value)
+			.Distinct()
+			.ToList();
 
-    private static TrackScheduleListItemResponse MapListItem(WatchSchedule schedule, WatchExecution? latestExecution)
-        => new()
-        {
-            Id = schedule.Id,
-            DisplayName = schedule.DisplayName,
-            TargetType = schedule.TargetType,
-            TargetValue = schedule.TargetValue,
-            WatchDateUtc = schedule.WatchDateUtc.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture),
-            StartZulu = schedule.StartZulu.ToString("HH:mm", CultureInfo.InvariantCulture),
-            EndZulu = schedule.EndZulu.ToString("HH:mm", CultureInfo.InvariantCulture),
-            Status = schedule.Status,
-            CreatedAtUtc = schedule.CreatedAtUtc.ToString("O", CultureInfo.InvariantCulture),
-            LatestExecution = latestExecution is null ? null : MapExecution(latestExecution),
-        };
+		if (executionIds.Count == 0) {
+			return [];
+		}
 
-    private static TrackScheduleDetailResponse MapDetail(
-        WatchSchedule schedule,
-        WatchExecution? latestExecution,
-        IReadOnlyList<WatchExecution> executions)
-        => new()
-        {
-            Id = schedule.Id,
-            DisplayName = schedule.DisplayName,
-            TargetType = schedule.TargetType,
-            TargetValue = schedule.TargetValue,
-            WatchDateUtc = schedule.WatchDateUtc.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture),
-            StartZulu = schedule.StartZulu.ToString("HH:mm", CultureInfo.InvariantCulture),
-            EndZulu = schedule.EndZulu.ToString("HH:mm", CultureInfo.InvariantCulture),
-            Status = schedule.Status,
-            CreatedAtUtc = schedule.CreatedAtUtc.ToString("O", CultureInfo.InvariantCulture),
-            LatestExecution = latestExecution is null ? null : MapExecution(latestExecution),
-            Executions = executions.Select(MapExecution).ToList(),
-        };
+		var executions = await dbContext.WatchExecutions
+			.AsNoTracking()
+			.Where(x => executionIds.Contains(x.Id))
+			.ToListAsync(cancellationToken);
 
-    private static TrackExecutionResponse MapExecution(WatchExecution execution)
-        => new()
-        {
-            Id = execution.Id,
-            ScheduleId = execution.ScheduleId,
-            Status = execution.Status,
-            MatchedPointCount = execution.MatchedPointCount,
-            StartedAtUtc = execution.StartedAtUtc.ToString("O", CultureInfo.InvariantCulture),
-            FinishedAtUtc = execution.FinishedAtUtc?.ToString("O", CultureInfo.InvariantCulture),
-            ErrorMessage = execution.ErrorMessage,
-            DownloadUrl = string.IsNullOrWhiteSpace(execution.OutputKmlPath)
-                ? null
-                : $"/adsb/flights/track-schedules/executions/{execution.Id}/download",
-        };
+		return schedules
+			.Where(x => x.LatestExecutionId.HasValue)
+			.Join(
+				executions,
+				schedule => schedule.LatestExecutionId!.Value,
+				execution => execution.Id,
+				(schedule, execution) => new { schedule.Id, execution })
+			.ToDictionary(x => x.Id, x => x.execution);
+	}
 
-    private sealed record NormalizedRequest(
-        string DisplayName,
-        string TargetType,
-        string TargetValue,
-        DateOnly WatchDateUtc,
-        TimeOnly StartZulu,
-        TimeOnly EndZulu);
+	private static TrackScheduleListItemResponse MapListItem(WatchSchedule schedule, WatchExecution? latestExecution)
+		=> new() {
+			Id = schedule.Id,
+			DisplayName = schedule.DisplayName,
+			TargetType = schedule.TargetType,
+			TargetValue = schedule.TargetValue,
+			WatchDateUtc = schedule.WatchDateUtc.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture),
+			StartZulu = schedule.StartZulu.ToString("HH:mm", CultureInfo.InvariantCulture),
+			EndZulu = schedule.EndZulu.ToString("HH:mm", CultureInfo.InvariantCulture),
+			Status = schedule.Status,
+			CreatedAtUtc = schedule.CreatedAtUtc.ToString("O", CultureInfo.InvariantCulture),
+			LatestExecution = latestExecution is null ? null : MapExecution(latestExecution),
+		};
+
+	private static TrackScheduleDetailResponse MapDetail(
+		WatchSchedule schedule,
+		WatchExecution? latestExecution,
+		IReadOnlyList<WatchExecution> executions)
+		=> new() {
+			Id = schedule.Id,
+			DisplayName = schedule.DisplayName,
+			TargetType = schedule.TargetType,
+			TargetValue = schedule.TargetValue,
+			WatchDateUtc = schedule.WatchDateUtc.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture),
+			StartZulu = schedule.StartZulu.ToString("HH:mm", CultureInfo.InvariantCulture),
+			EndZulu = schedule.EndZulu.ToString("HH:mm", CultureInfo.InvariantCulture),
+			Status = schedule.Status,
+			CreatedAtUtc = schedule.CreatedAtUtc.ToString("O", CultureInfo.InvariantCulture),
+			LatestExecution = latestExecution is null ? null : MapExecution(latestExecution),
+			Executions = executions.Select(MapExecution).ToList(),
+		};
+
+	private static TrackExecutionResponse MapExecution(WatchExecution execution)
+		=> new() {
+			Id = execution.Id,
+			ScheduleId = execution.ScheduleId,
+			Status = execution.Status,
+			MatchedPointCount = execution.MatchedPointCount,
+			StartedAtUtc = execution.StartedAtUtc.ToString("O", CultureInfo.InvariantCulture),
+			FinishedAtUtc = execution.FinishedAtUtc?.ToString("O", CultureInfo.InvariantCulture),
+			ErrorMessage = execution.ErrorMessage,
+			DownloadUrl = string.IsNullOrWhiteSpace(execution.OutputKmlPath)
+				? null
+				: $"/adsb/flights/track-schedules/executions/{execution.Id}/download",
+		};
+
+	private sealed record NormalizedRequest(
+		string DisplayName,
+		string TargetType,
+		string TargetValue,
+		DateOnly WatchDateUtc,
+		TimeOnly StartZulu,
+		TimeOnly EndZulu);
 }

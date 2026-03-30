@@ -8,4 +8,5 @@ public static class TrackScheduleStatuses
     public const string NoData = "no_data";
     public const string Cancelled = "cancelled";
     public const string Failed = "failed";
+    public const string Archived = "archived";
 }
