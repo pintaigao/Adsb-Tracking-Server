@@ -10,6 +10,8 @@ builder.Services.Configure<PiTrackSourceOptions>(
     builder.Configuration.GetSection(PiTrackSourceOptions.SectionName));
 builder.Services.Configure<TrackerStorageOptions>(
     builder.Configuration.GetSection(TrackerStorageOptions.SectionName));
+builder.Services.Configure<FeederLiveAircraftOptions>(
+    builder.Configuration.GetSection(FeederLiveAircraftOptions.SectionName));
 
 var connectionString =
     builder.Configuration.GetConnectionString("Default")
@@ -25,6 +27,7 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<TrackScheduleService>();
 builder.Services.AddScoped<PiTrackSourceService>();
 builder.Services.AddScoped<TrackExportService>();
+builder.Services.AddHttpClient<FeederLiveAircraftService>();
 builder.Services.AddHostedService<TrackScheduleExecutionWorker>();
 
 var app = builder.Build();

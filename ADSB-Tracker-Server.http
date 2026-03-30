@@ -45,3 +45,10 @@ X-User-Id: {{UserId}}
 
 GET {{ADSB_Tracker_Server_HostAddress}}/adsb/flights/track-schedules/executions/{{ExecutionId}}/download
 X-User-Id: {{UserId}}
+
+###
+
+GET {{ADSB_Tracker_Server_HostAddress}}/adsb/flights/live-aircraft
+Accept: application/json
+
+###

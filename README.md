@@ -40,6 +40,8 @@ Optional path overrides:
 PiTrackSource__RawRootPath="/home/hptg/Projects/adsb-tracklog/raw"
 TrackerStorage__WorkingDirectory="data/work"
 TrackerStorage__ExportDirectory="data/exports"
+FEEDER_LIVE_AIRCRAFT_URL="http://192.168.86.53:8080/live-aircraft"
+FEEDER_LIVE_AIRCRAFT_TOKEN=""
 ```
 
 ## EF Core migrations
@@ -78,6 +80,7 @@ http://localhost:5053
 
 ## Internal API
 
+- `GET /adsb/flights/live-aircraft`
 - `POST /adsb/flights/track-schedules`
 - `GET /adsb/flights/track-schedules`
 - `GET /adsb/flights/track-schedules/{id}`
