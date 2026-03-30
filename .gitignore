@@ -1,0 +1,5 @@
+bin/
+obj/
+.idea/
+.worktrees/
+.DS_Store
