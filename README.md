@@ -47,6 +47,13 @@ Optional path overrides:
 
 ```bash
 PiTrackSource__RawRootPath="/home/hptg/Projects/adsb-tracklog/raw"
+PiTrackSource__Mode="ssh"
+PiTrackSource__SshHost="192.168.86.53"
+PiTrackSource__SshUser="pintaigao"
+PiTrackSource__SshPort=22
+PiTrackSource__RemoteRawRootPath="/home/pintaigao/Documents/ADSB-Tracker/raw"
+PiTrackSource__SshIdentityFile="/Users/your-user/.ssh/id_ed25519"
+PiTrackSource__SshAcceptNewHostKey=true
 TrackerStorage__WorkingDirectory="data/work"
 TrackerStorage__ExportDirectory="data/exports"
 FEEDER_LIVE_AIRCRAFT_URL="http://192.168.86.53:8080/live-aircraft"
@@ -55,6 +62,13 @@ FLIGHT_TRAINING_SERVER_BASE_URL="http://localhost:3000"
 FLIGHT_TRAINING_SERVER_SERVICE_TOKEN=""
 DISABLE_TRACK_SCHEDULE_WORKER=1
 ```
+
+`PiTrackSource` supports two modes:
+
+- `local` (default): reads `YYYY-MM-DD.jsonl` from `RawRootPath`
+- `ssh`: uses `scp` to copy one daily `jsonl` from the remote Ubuntu host into the local working directory on demand
+
+For your current Mac + Ubuntu setup, `ssh` mode is the intended path. Make sure key-based SSH login from the Mac to the Ubuntu host works non-interactively before running schedules.
 
 ## EF Core migrations
 
