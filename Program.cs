@@ -28,19 +28,15 @@ builder.Services.AddScoped<TrackScheduleService>();
 builder.Services.AddScoped<PiTrackSourceService>();
 builder.Services.AddScoped<TrackExportService>();
 builder.Services.AddHttpClient<FeederLiveAircraftService>();
-builder.Services.AddHostedService<TrackScheduleExecutionWorker>();
+
+if (!IsFlagEnabled(builder.Configuration, "DISABLE_TRACK_SCHEDULE_WORKER"))
+{
+    builder.Services.AddHostedService<TrackScheduleExecutionWorker>();
+}
 
 var app = builder.Build();
 
-var skipDbMigrate =
-    string.Equals(
-        builder.Configuration["SKIP_DB_MIGRATE"],
-        "1",
-        StringComparison.OrdinalIgnoreCase)
-    || string.Equals(
-        Environment.GetEnvironmentVariable("SKIP_DB_MIGRATE"),
-        "1",
-        StringComparison.OrdinalIgnoreCase);
+var skipDbMigrate = IsFlagEnabled(builder.Configuration, "SKIP_DB_MIGRATE");
 
 if (!skipDbMigrate)
 {
@@ -54,3 +50,13 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+static bool IsFlagEnabled(IConfiguration configuration, string key)
+    => string.Equals(
+        configuration[key],
+        "1",
+        StringComparison.OrdinalIgnoreCase)
+       || string.Equals(
+           Environment.GetEnvironmentVariable(key),
+           "1",
+           StringComparison.OrdinalIgnoreCase);

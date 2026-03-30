@@ -42,6 +42,7 @@ TrackerStorage__WorkingDirectory="data/work"
 TrackerStorage__ExportDirectory="data/exports"
 FEEDER_LIVE_AIRCRAFT_URL="http://192.168.86.53:8080/live-aircraft"
 FEEDER_LIVE_AIRCRAFT_TOKEN=""
+DISABLE_TRACK_SCHEDULE_WORKER=1
 ```
 
 ## EF Core migrations
@@ -70,6 +71,12 @@ The app also runs `Database.Migrate()` on startup, so once the first migration e
 
 ```bash
 DOTNET_CLI_HOME=/tmp dotnet run --launch-profile http
+```
+
+To run only the live-aircraft path without background MySQL polling:
+
+```bash
+SKIP_DB_MIGRATE=1 DISABLE_TRACK_SCHEDULE_WORKER=1 DOTNET_CLI_HOME=/tmp dotnet run --launch-profile http
 ```
 
 The default local HTTP URL is:
