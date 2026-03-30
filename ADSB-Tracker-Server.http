@@ -1,6 +1,47 @@
-@ADSB_Tracker_Server_HostAddress = http://localhost:0
+@ADSB_Tracker_Server_HostAddress = http://localhost:5053
+@UserId = dev-user
+@ScheduleId = 1
+@ExecutionId = 1
 
-GET {{ADSB_Tracker_Server_HostAddress}}/weatherforecast/
+GET {{ADSB_Tracker_Server_HostAddress}}/adsb/flights/track-schedules
 Accept: application/json
+X-User-Id: {{UserId}}
 
 ###
+
+POST {{ADSB_Tracker_Server_HostAddress}}/adsb/flights/track-schedules
+Content-Type: application/json
+Accept: application/json
+X-User-Id: {{UserId}}
+
+{
+  "displayName": "KPWK training pattern",
+  "targetType": "flight",
+  "targetValue": "N12345",
+  "watchDateUtc": "2026-03-29",
+  "startZulu": "14:00",
+  "endZulu": "16:00"
+}
+
+###
+
+GET {{ADSB_Tracker_Server_HostAddress}}/adsb/flights/track-schedules/{{ScheduleId}}
+Accept: application/json
+X-User-Id: {{UserId}}
+
+###
+
+POST {{ADSB_Tracker_Server_HostAddress}}/adsb/flights/track-schedules/{{ScheduleId}}/cancel
+Accept: application/json
+X-User-Id: {{UserId}}
+
+###
+
+GET {{ADSB_Tracker_Server_HostAddress}}/adsb/flights/track-schedules/{{ScheduleId}}/executions
+Accept: application/json
+X-User-Id: {{UserId}}
+
+###
+
+GET {{ADSB_Tracker_Server_HostAddress}}/adsb/flights/track-schedules/executions/{{ExecutionId}}/download
+X-User-Id: {{UserId}}

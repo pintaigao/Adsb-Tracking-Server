@@ -1,4 +1,4 @@
-namespace ADSB.Tracker.Server.Contracts.TrackSchedules;
+namespace ADSB.Tracker.Server.Dtos.TrackSchedules;
 
 public sealed class TrackExecutionResponse
 {

@@ -1,6 +1,6 @@
 using System.Globalization;
 using ADSB.Tracker.Server.Constants;
-using ADSB.Tracker.Server.Contracts.TrackSchedules;
+using ADSB.Tracker.Server.Dtos.TrackSchedules;
 using ADSB.Tracker.Server.Data;
 using ADSB.Tracker.Server.Data.Entities;
 using Microsoft.EntityFrameworkCore;

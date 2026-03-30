@@ -1,4 +1,4 @@
-using ADSB.Tracker.Server.Contracts.TrackSchedules;
+using ADSB.Tracker.Server.Dtos.TrackSchedules;
 using ADSB.Tracker.Server.Services;
 using Microsoft.AspNetCore.Mvc;
 
