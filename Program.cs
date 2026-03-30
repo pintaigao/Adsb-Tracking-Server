@@ -6,6 +6,10 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration
+    .AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables();
+
 builder.Services.Configure<PiTrackSourceOptions>(
     builder.Configuration.GetSection(PiTrackSourceOptions.SectionName));
 builder.Services.Configure<TrackerStorageOptions>(

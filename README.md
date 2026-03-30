@@ -26,6 +26,7 @@ The service reads configuration from:
 
 - `appsettings.json`
 - `appsettings.Development.json`
+- `appsettings.Local.json` (optional, local-only, ignored by Git)
 - environment variables
 
 The most important setting is:
@@ -33,6 +34,14 @@ The most important setting is:
 ```bash
 ConnectionStrings__Default="server=localhost;port=3306;database=adsb_tracker;user=hptg;password=your-password"
 ```
+
+For local secrets, copy the example file and keep the real value only in your local machine:
+
+```bash
+cp appsettings.Local.example.json appsettings.Local.json
+```
+
+Then edit `appsettings.Local.json` with your real MySQL password. That file is ignored by Git. Environment variables still override all JSON files when both are set.
 
 Optional path overrides:
 

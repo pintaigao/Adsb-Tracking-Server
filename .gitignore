@@ -3,3 +3,4 @@ obj/
 .idea/
 .worktrees/
 .DS_Store
+appsettings.Local.json
