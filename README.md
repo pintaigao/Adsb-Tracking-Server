@@ -51,6 +51,8 @@ TrackerStorage__WorkingDirectory="data/work"
 TrackerStorage__ExportDirectory="data/exports"
 FEEDER_LIVE_AIRCRAFT_URL="http://192.168.86.53:8080/live-aircraft"
 FEEDER_LIVE_AIRCRAFT_TOKEN=""
+FLIGHT_TRAINING_SERVER_BASE_URL="http://localhost:3000"
+FLIGHT_TRAINING_SERVER_SERVICE_TOKEN=""
 DISABLE_TRACK_SCHEDULE_WORKER=1
 ```
 

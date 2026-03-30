@@ -16,6 +16,8 @@ builder.Services.Configure<TrackerStorageOptions>(
     builder.Configuration.GetSection(TrackerStorageOptions.SectionName));
 builder.Services.Configure<FeederLiveAircraftOptions>(
     builder.Configuration.GetSection(FeederLiveAircraftOptions.SectionName));
+builder.Services.Configure<FlightTrainingServerOptions>(
+    builder.Configuration.GetSection(FlightTrainingServerOptions.SectionName));
 
 var connectionString =
     builder.Configuration.GetConnectionString("Default")
@@ -32,6 +34,7 @@ builder.Services.AddScoped<TrackScheduleService>();
 builder.Services.AddScoped<PiTrackSourceService>();
 builder.Services.AddScoped<TrackExportService>();
 builder.Services.AddHttpClient<FeederLiveAircraftService>();
+builder.Services.AddHttpClient<FlightImportService>();
 
 if (!IsFlagEnabled(builder.Configuration, "DISABLE_TRACK_SCHEDULE_WORKER"))
 {

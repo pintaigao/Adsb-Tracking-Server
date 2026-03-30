@@ -11,6 +11,7 @@ public sealed class TrackScheduleService(
     AdsbTrackerDbContext dbContext,
     PiTrackSourceService piTrackSourceService,
     TrackExportService trackExportService,
+    FlightImportService flightImportService,
     ILogger<TrackScheduleService> logger)
 {
     public async Task<TrackScheduleDetailResponse> CreateAsync(
@@ -226,6 +227,24 @@ public sealed class TrackScheduleService(
             schedule.UpdatedAtUtc = DateTime.UtcNow;
 
             await dbContext.SaveChangesAsync(cancellationToken);
+
+            if (!string.IsNullOrWhiteSpace(execution.OutputKmlPath))
+            {
+                try
+                {
+                    await flightImportService.ImportScheduledTrackAsync(
+                        schedule,
+                        execution,
+                        cancellationToken);
+                }
+                catch (Exception importEx)
+                {
+                    logger.LogError(
+                        importEx,
+                        "Track schedule execution {ExecutionId} completed but flight import failed",
+                        execution.Id);
+                }
+            }
         }
         catch (Exception ex)
         {

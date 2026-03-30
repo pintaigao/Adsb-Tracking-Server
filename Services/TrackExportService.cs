@@ -147,39 +147,61 @@ public sealed class TrackExportService(IOptions<TrackerStorageOptions> storageOp
     {
         var startUtc = FormatUtc(points[0].Ts);
         var endUtc = FormatUtc(points[^1].Ts);
-        var coordinates = string.Join(
-            " ",
+        var flight = points
+            .Select(point => point.Flight)
+            .FirstOrDefault(value => !string.IsNullOrWhiteSpace(value))
+            ?.Trim() ?? string.Empty;
+        var hex = points
+            .Select(point => point.Hex)
+            .FirstOrDefault(value => !string.IsNullOrWhiteSpace(value))
+            ?.Trim() ?? string.Empty;
+        var squawk = points
+            .Select(point => point.Squawk)
+            .FirstOrDefault(value => !string.IsNullOrWhiteSpace(value))
+            ?.Trim() ?? string.Empty;
+        var trackRows = string.Join(
+            Environment.NewLine,
             points.Select(point =>
             {
                 var altitudeMeters = Math.Round(((point.Alt ?? 0d) * 0.3048d), 1);
-                return FormattableString.Invariant($"{point.Lon},{point.Lat},{altitudeMeters}");
+                var timestamp = FormatUtc(point.Ts);
+                var coord = FormattableString.Invariant($"{point.Lon} {point.Lat} {altitudeMeters}");
+                return $$"""
+                                   <when>{{timestamp}}</when>
+                                   <gx:coord>{{coord}}</gx:coord>
+                         """;
             }));
 
         static string Escape(string value)
             => System.Security.SecurityElement.Escape(value) ?? string.Empty;
 
         var description = Escape(
-            $"Target: {targetValue}\nStart: {startUtc}\nEnd: {endUtc}\nPoints: {points.Count}");
+            $"Track name: {displayName}\nFlight: {flight}\nHex: {hex}\nSquawk: {squawk}\nTarget: {targetValue}\nStart: {startUtc}\nEnd: {endUtc}\nPoints: {points.Count}");
 
         return $$"""
                  <?xml version="1.0" encoding="UTF-8"?>
-                 <kml xmlns="http://www.opengis.net/kml/2.2">
+                 <kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">
                    <Document>
+                     <open>1</open>
+                     <visibility>1</visibility>
+                     <Style id="trackStyle">
+                       <LineStyle>
+                         <color>ff00a5ff</color>
+                         <width>3</width>
+                       </LineStyle>
+                     </Style>
                      <name>{{Escape(displayName)}}</name>
                      <Placemark>
                        <name>{{Escape(displayName)}}</name>
                        <description>{{description}}</description>
-                       <Style>
-                         <LineStyle>
-                           <color>ff00a5ff</color>
-                           <width>3</width>
-                         </LineStyle>
-                       </Style>
-                       <LineString>
-                         <tessellate>1</tessellate>
+                       <styleUrl>#trackStyle</styleUrl>
+                       <gx:Track>
                          <altitudeMode>absolute</altitudeMode>
-                         <coordinates>{{coordinates}}</coordinates>
-                       </LineString>
+                         <extrude>1</extrude>
+                         <altitudeMode>absolute</altitudeMode>
+                         <gx:interpolate>1</gx:interpolate>
+                         {{trackRows}}
+                       </gx:Track>
                      </Placemark>
                    </Document>
                  </kml>
