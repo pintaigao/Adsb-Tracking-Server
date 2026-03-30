@@ -1,0 +1,194 @@
+using System.Globalization;
+using System.Text;
+using System.Text.Json;
+using ADSB.Tracker.Server.Constants;
+using ADSB.Tracker.Server.Models;
+using ADSB.Tracker.Server.Options;
+using Microsoft.Extensions.Options;
+
+namespace ADSB.Tracker.Server.Services;
+
+public sealed class TrackExportService(IOptions<TrackerStorageOptions> storageOptions)
+{
+    public async Task<(int MatchedPointCount, string? OutputPath)> ExportAsync(
+        string rawPath,
+        string targetType,
+        string targetValue,
+        string displayName,
+        DateOnly watchDateUtc,
+        TimeOnly startZulu,
+        TimeOnly endZulu,
+        long executionId,
+        CancellationToken cancellationToken)
+    {
+        var points = await LoadFilteredPointsAsync(
+            rawPath,
+            targetType,
+            targetValue,
+            watchDateUtc,
+            startZulu,
+            endZulu,
+            cancellationToken);
+
+        if (points.Count < 2)
+        {
+            return (points.Count, null);
+        }
+
+        var exportRoot = storageOptions.Value.ExportDirectory;
+        Directory.CreateDirectory(exportRoot);
+
+        var fileName = $"{SanitizeFileName(displayName)}-{watchDateUtc:yyyy-MM-dd}-{executionId}.kml";
+        var outputPath = Path.Combine(exportRoot, fileName);
+        await File.WriteAllTextAsync(outputPath, BuildKml(displayName, targetValue, points), cancellationToken);
+
+        return (points.Count, outputPath);
+    }
+
+    private static async Task<List<RawTrackPoint>> LoadFilteredPointsAsync(
+        string rawPath,
+        string targetType,
+        string targetValue,
+        DateOnly watchDateUtc,
+        TimeOnly startZulu,
+        TimeOnly endZulu,
+        CancellationToken cancellationToken)
+    {
+        var points = new List<RawTrackPoint>();
+        await using var stream = File.OpenRead(rawPath);
+        using var reader = new StreamReader(stream);
+
+        while (!reader.EndOfStream)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var line = await reader.ReadLineAsync(cancellationToken);
+            if (string.IsNullOrWhiteSpace(line))
+            {
+                continue;
+            }
+
+            RawTrackPoint? point;
+            try
+            {
+                point = JsonSerializer.Deserialize<RawTrackPoint>(line);
+            }
+            catch (JsonException)
+            {
+                continue;
+            }
+
+            if (point is null || point.Lat is null || point.Lon is null)
+            {
+                continue;
+            }
+
+            if (!MatchesWindow(point.Ts, watchDateUtc, startZulu, endZulu))
+            {
+                continue;
+            }
+
+            if (!MatchesTarget(point, targetType, targetValue))
+            {
+                continue;
+            }
+
+            points.Add(point);
+        }
+
+        points.Sort((a, b) => a.Ts.CompareTo(b.Ts));
+        return points;
+    }
+
+    private static bool MatchesWindow(
+        double ts,
+        DateOnly watchDateUtc,
+        TimeOnly startZulu,
+        TimeOnly endZulu)
+    {
+        var timestamp = DateTimeOffset.FromUnixTimeMilliseconds((long)Math.Round(ts * 1000d));
+        if (DateOnly.FromDateTime(timestamp.UtcDateTime) != watchDateUtc)
+        {
+            return false;
+        }
+
+        var utcTime = TimeOnly.FromDateTime(timestamp.UtcDateTime);
+        return utcTime >= startZulu && utcTime <= endZulu;
+    }
+
+    private static bool MatchesTarget(RawTrackPoint point, string targetType, string targetValue)
+    {
+        var normalizedTarget = Normalize(targetValue);
+        return targetType.ToLowerInvariant() switch
+        {
+            TrackTargetTypes.Hex => Normalize(point.Hex) == normalizedTarget,
+            TrackTargetTypes.Flight => Normalize(point.Flight) == normalizedTarget,
+            TrackTargetTypes.Tail => Normalize(point.Hex) == normalizedTarget || Normalize(point.Flight) == normalizedTarget,
+            _ => false,
+        };
+    }
+
+    private static string Normalize(string? value)
+        => string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim().ToUpperInvariant();
+
+    private static string SanitizeFileName(string value)
+    {
+        var invalid = Path.GetInvalidFileNameChars();
+        var builder = new StringBuilder(value.Length);
+        foreach (var ch in value)
+        {
+            builder.Append(invalid.Contains(ch) ? '_' : ch);
+        }
+
+        var sanitized = builder.ToString().Trim();
+        return string.IsNullOrWhiteSpace(sanitized) ? "track" : sanitized;
+    }
+
+    private static string BuildKml(string displayName, string targetValue, IReadOnlyList<RawTrackPoint> points)
+    {
+        var startUtc = FormatUtc(points[0].Ts);
+        var endUtc = FormatUtc(points[^1].Ts);
+        var coordinates = string.Join(
+            " ",
+            points.Select(point =>
+            {
+                var altitudeMeters = Math.Round(((point.Alt ?? 0d) * 0.3048d), 1);
+                return FormattableString.Invariant($"{point.Lon},{point.Lat},{altitudeMeters}");
+            }));
+
+        static string Escape(string value)
+            => System.Security.SecurityElement.Escape(value) ?? string.Empty;
+
+        var description = Escape(
+            $"Target: {targetValue}\nStart: {startUtc}\nEnd: {endUtc}\nPoints: {points.Count}");
+
+        return $$"""
+                 <?xml version="1.0" encoding="UTF-8"?>
+                 <kml xmlns="http://www.opengis.net/kml/2.2">
+                   <Document>
+                     <name>{{Escape(displayName)}}</name>
+                     <Placemark>
+                       <name>{{Escape(displayName)}}</name>
+                       <description>{{description}}</description>
+                       <Style>
+                         <LineStyle>
+                           <color>ff00a5ff</color>
+                           <width>3</width>
+                         </LineStyle>
+                       </Style>
+                       <LineString>
+                         <tessellate>1</tessellate>
+                         <altitudeMode>absolute</altitudeMode>
+                         <coordinates>{{coordinates}}</coordinates>
+                       </LineString>
+                     </Placemark>
+                   </Document>
+                 </kml>
+                 """;
+    }
+
+    private static string FormatUtc(double ts)
+    {
+        var timestamp = DateTimeOffset.FromUnixTimeMilliseconds((long)Math.Round(ts * 1000d));
+        return timestamp.UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ss.fffZ", CultureInfo.InvariantCulture);
+    }
+}

@@ -1,0 +1,6 @@
+@ADSB_Tracker_Server_HostAddress = http://localhost:0
+
+GET {{ADSB_Tracker_Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
