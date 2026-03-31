@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">
+  <Document>
+    <open>1</open>
+    <visibility>1</visibility>
+    <Style id="trackStyle">
+      <LineStyle>
+        <color>ff00a5ff</color>
+        <width>3</width>
+      </LineStyle>
+    </Style>
+    <name>N77GX</name>
+    <Placemark>
+      <name>N77GX</name>
+      <description>Track name: N77GX
+Flight: N77GX
+Hex: aa675a
+Squawk: 
+Target: N77GX
+Start: 2026-03-30T12:47:39.000Z
+End: 2026-03-30T13:09:41.000Z
+Points: 207</description>
+      <styleUrl>#trackStyle</styleUrl>
+      <gx:Track>
+        <altitudeMode>absolute</altitudeMode>
+        <extrude>1</extrude>
+        <altitudeMode>absolute</altitudeMode>
+        <gx:interpolate>1</gx:interpolate>
+                  <when>2026-03-30T12:47:39.000Z</when>
+          <gx:coord>-88.112973 41.992126 396.2</gx:coord>
+          <when>2026-03-30T12:47:41.000Z</when>
+          <gx:coord>-88.11391 41.99231 426.7</gx:coord>
+          <when>2026-03-30T12:47:43.000Z</when>
+          <gx:coord>-88.11391 41.99231 426.7</gx:coord>
+          <when>2026-03-30T12:47:45.000Z</when>
+          <gx:coord>-88.115078 41.992586 457.2</gx:coord>
+          <when>2026-03-30T12:47:48.000Z</when>
+          <gx:coord>-88.115972 41.992772 457.2</gx:coord>
+          <when>2026-03-30T12:47:50.000Z</when>
+          <gx:coord>-88.116594 41.992905 457.2</gx:coord>
+          <when>2026-03-30T12:47:52.000Z</when>
+          <gx:coord>-88.117314 41.993005 457.2</gx:coord>
+          <when>2026-03-30T12:47:54.000Z</when>
+          <gx:coord>-88.117314 41.993005 457.2</gx:coord>
+          <when>2026-03-30T12:47:56.000Z</when>
+          <gx:coord>-88.117314 41.993005 457.2</gx:coord>
+          <when>2026-03-30T12:47:58.000Z</when>
+          <gx:coord>-88.117314 41.993005 457.2</gx:coord>
+          <when>2026-03-30T12:48:00.000Z</when>
+          <gx:coord>-88.117314 41.993005 457.2</gx:coord>
+          <when>2026-03-30T12:48:02.000Z</when>
+          <gx:coord>-88.117314 41.993005 457.2</gx:coord>
+          <when>2026-03-30T12:48:04.000Z</when>
+          <gx:coord>-88.117314 41.993005 457.2</gx:coord>
+          <when>2026-03-30T12:48:06.000Z</when>
+          <gx:coord>-88.120571 41.991562 487.7</gx:coord>
+          <when>2026-03-30T12:48:08.000Z</when>
+          <gx:coord>-88.121088 41.990662 487.7</gx:coord>
+          <when>2026-03-30T12:48:10.000Z</when>
+          <gx:coord>-88.121088 41.990662 487.7</gx:coord>
+          <when>2026-03-30T12:48:12.000Z</when>
+          <gx:coord>-88.121088 41.990662 487.7</gx:coord>
+          <when>2026-03-30T12:48:14.000Z</when>
+          <gx:coord>-88.121088 41.990662 487.7</gx:coord>
+          <when>2026-03-30T12:48:16.000Z</when>
+          <gx:coord>-88.121962 41.988968 487.7</gx:coord>
+          <when>2026-03-30T12:48:18.000Z</when>
+          <gx:coord>-88.122274 41.988235 487.7</gx:coord>
+          <when>2026-03-30T12:48:20.000Z</when>
+          <gx:coord>-88.122274 41.988235 487.7</gx:coord>
+          <when>2026-03-30T12:48:22.000Z</when>
+          <gx:coord>-88.122274 41.988235 487.7</gx:coord>
+          <when>2026-03-30T12:48:24.000Z</when>
+          <gx:coord>-88.122274 41.988235 487.7</gx:coord>
+          <when>2026-03-30T12:48:26.000Z</when>
+          <gx:coord>-88.122274 41.988235 487.7</gx:coord>
+          <when>2026-03-30T12:48:28.000Z</when>
+          <gx:coord>-88.122274 41.988235 487.7</gx:coord>
+          <when>2026-03-30T12:48:30.000Z</when>
+          <gx:coord>-88.120464 41.984848 457.2</gx:coord>
+          <when>2026-03-30T12:48:32.000Z</when>
+          <gx:coord>-88.119528 41.984436 457.2</gx:coord>
+          <when>2026-03-30T12:48:34.000Z</when>
+          <gx:coord>-88.119166 41.984299 457.2</gx:coord>
+          <when>2026-03-30T12:48:36.000Z</when>
+          <gx:coord>-88.117717 41.983841 457.2</gx:coord>
+          <when>2026-03-30T12:48:38.000Z</when>
+          <gx:coord>-88.116739 41.983508 457.2</gx:coord>
+          <when>2026-03-30T12:48:40.000Z</when>
+          <gx:coord>-88.115653 41.983136 457.2</gx:coord>
+          <when>2026-03-30T12:48:42.000Z</when>
+          <gx:coord>-88.114823 41.982903 457.2</gx:coord>
+          <when>2026-03-30T12:48:44.000Z</when>
+          <gx:coord>-88.113801 41.982577 457.2</gx:coord>
+          <when>2026-03-30T12:48:46.000Z</when>
+          <gx:coord>-88.113034 41.982344 457.2</gx:coord>
+          <when>2026-03-30T12:48:48.000Z</when>
+          <gx:coord>-88.113034 41.982344 457.2</gx:coord>
+          <when>2026-03-30T12:48:50.000Z</when>
+          <gx:coord>-88.113034 41.982344 457.2</gx:coord>
+          <when>2026-03-30T12:48:52.000Z</when>
+          <gx:coord>-88.113034 41.982344 457.2</gx:coord>
+          <when>2026-03-30T12:48:54.000Z</when>
+          <gx:coord>-88.113034 41.982344 457.2</gx:coord>
+          <when>2026-03-30T12:48:56.000Z</when>
+          <gx:coord>-88.113034 41.982344 457.2</gx:coord>
+          <when>2026-03-30T12:48:58.000Z</when>
+          <gx:coord>-88.113034 41.982344 457.2</gx:coord>
+          <when>2026-03-30T12:49:00.000Z</when>
+          <gx:coord>-88.113034 41.982344 457.2</gx:coord>
+          <when>2026-03-30T12:49:02.000Z</when>
+          <gx:coord>-88.113034 41.982344 457.2</gx:coord>
+          <when>2026-03-30T12:49:04.000Z</when>
+          <gx:coord>-88.113034 41.982344 457.2</gx:coord>
+          <when>2026-03-30T12:49:06.000Z</when>
+          <gx:coord>-88.113034 41.982344 457.2</gx:coord>
+          <when>2026-03-30T12:49:08.000Z</when>
+          <gx:coord>-88.113034 41.982344 457.2</gx:coord>
+          <when>2026-03-30T12:49:10.000Z</when>
+          <gx:coord>-88.113034 41.982344 457.2</gx:coord>
+          <when>2026-03-30T12:49:12.000Z</when>
+          <gx:coord>-88.113034 41.982344 457.2</gx:coord>
+          <when>2026-03-30T12:49:14.000Z</when>
+          <gx:coord>-88.113034 41.982344 457.2</gx:coord>
+          <when>2026-03-30T12:49:16.000Z</when>
+          <gx:coord>-88.113034 41.982344 457.2</gx:coord>
+          <when>2026-03-30T12:49:18.000Z</when>
+          <gx:coord>-88.113034 41.982344 457.2</gx:coord>
+          <when>2026-03-30T12:49:20.000Z</when>
+          <gx:coord>-88.09718 41.97702 487.7</gx:coord>
+          <when>2026-03-30T12:49:22.000Z</when>
+          <gx:coord>-88.09718 41.97702 487.7</gx:coord>
+          <when>2026-03-30T12:49:24.000Z</when>
+          <gx:coord>-88.096172 41.976711 487.7</gx:coord>
+          <when>2026-03-30T12:49:26.000Z</when>
+          <gx:coord>-88.095341 41.976432 487.7</gx:coord>
+          <when>2026-03-30T12:49:28.000Z</when>
+          <gx:coord>-88.094 41.976013 457.2</gx:coord>
+          <when>2026-03-30T12:49:30.000Z</when>
+          <gx:coord>-88.093042 41.975687 457.2</gx:coord>
+          <when>2026-03-30T12:49:32.000Z</when>
+          <gx:coord>-88.092595 41.975548 457.2</gx:coord>
+          <when>2026-03-30T12:49:34.000Z</when>
+          <gx:coord>-88.092062 41.975372 457.2</gx:coord>
+          <when>2026-03-30T12:49:36.000Z</when>
+          <gx:coord>-88.092062 41.975372 457.2</gx:coord>
+          <when>2026-03-30T12:49:38.000Z</when>
+          <gx:coord>-88.092062 41.975372 457.2</gx:coord>
+          <when>2026-03-30T12:49:40.000Z</when>
+          <gx:coord>-88.089018 41.974524 457.2</gx:coord>
+          <when>2026-03-30T12:49:42.000Z</when>
+          <gx:coord>-88.089018 41.974524 457.2</gx:coord>
+          <when>2026-03-30T12:49:44.000Z</when>
+          <gx:coord>-88.089018 41.974524 457.2</gx:coord>
+          <when>2026-03-30T12:49:46.000Z</when>
+          <gx:coord>-88.08659 41.973965 426.7</gx:coord>
+          <when>2026-03-30T12:49:48.000Z</when>
+          <gx:coord>-88.08659 41.973965 426.7</gx:coord>
+          <when>2026-03-30T12:49:50.000Z</when>
+          <gx:coord>-88.085185 41.973639 426.7</gx:coord>
+          <when>2026-03-30T12:49:52.000Z</when>
+          <gx:coord>-88.084099 41.973453 426.7</gx:coord>
+          <when>2026-03-30T12:49:54.000Z</when>
+          <gx:coord>-88.084099 41.973453 426.7</gx:coord>
+          <when>2026-03-30T12:49:56.000Z</when>
+          <gx:coord>-88.083077 41.973313 426.7</gx:coord>
+          <when>2026-03-30T12:49:58.000Z</when>
+          <gx:coord>-88.083077 41.973313 426.7</gx:coord>
+          <when>2026-03-30T12:50:00.000Z</when>
+          <gx:coord>-88.083077 41.973313 426.7</gx:coord>
+          <when>2026-03-30T12:50:02.000Z</when>
+          <gx:coord>-88.083077 41.973313 426.7</gx:coord>
+          <when>2026-03-30T12:50:04.000Z</when>
+          <gx:coord>-88.083077 41.973313 426.7</gx:coord>
+          <when>2026-03-30T12:50:06.000Z</when>
+          <gx:coord>-88.083077 41.973313 426.7</gx:coord>
+          <when>2026-03-30T12:50:08.000Z</when>
+          <gx:coord>-88.083077 41.973313 426.7</gx:coord>
+          <when>2026-03-30T12:50:10.000Z</when>
+          <gx:coord>-88.083077 41.973313 426.7</gx:coord>
+          <when>2026-03-30T12:50:12.000Z</when>
+          <gx:coord>-88.083077 41.973313 426.7</gx:coord>
+          <when>2026-03-30T12:50:14.000Z</when>
+          <gx:coord>-88.083077 41.973313 426.7</gx:coord>
+          <when>2026-03-30T12:50:16.000Z</when>
+          <gx:coord>-88.083077 41.973313 426.7</gx:coord>
+          <when>2026-03-30T12:50:18.000Z</when>
+          <gx:coord>-88.083077 41.973313 426.7</gx:coord>
+          <when>2026-03-30T12:50:20.000Z</when>
+          <gx:coord>-88.083077 41.973313 426.7</gx:coord>
+          <when>2026-03-30T12:50:22.000Z</when>
+          <gx:coord>-88.083077 41.973313 426.7</gx:coord>
+          <when>2026-03-30T12:50:24.000Z</when>
+          <gx:coord>-88.083077 41.973313 426.7</gx:coord>
+          <when>2026-03-30T12:50:26.000Z</when>
+          <gx:coord>-88.083077 41.973313 426.7</gx:coord>
+          <when>2026-03-30T12:50:28.000Z</when>
+          <gx:coord>-88.083077 41.973313 426.7</gx:coord>
+          <when>2026-03-30T12:50:30.000Z</when>
+          <gx:coord>-88.083077 41.973313 426.7</gx:coord>
+          <when>2026-03-30T12:50:32.000Z</when>
+          <gx:coord>-88.083077 41.973313 426.7</gx:coord>
+          <when>2026-03-30T12:50:34.000Z</when>
+          <gx:coord>-88.083077 41.973313 426.7</gx:coord>
+          <when>2026-03-30T12:50:36.000Z</when>
+          <gx:coord>-88.083077 41.973313 426.7</gx:coord>
+          <when>2026-03-30T12:50:38.000Z</when>
+          <gx:coord>-88.083077 41.973313 426.7</gx:coord>
+          <when>2026-03-30T12:50:40.000Z</when>
+          <gx:coord>-88.083077 41.973313 426.7</gx:coord>
+          <when>2026-03-30T12:50:42.000Z</when>
+          <gx:coord>-88.083077 41.973313 426.7</gx:coord>
+          <when>2026-03-30T12:50:44.000Z</when>
+          <gx:coord>-88.083077 41.973313 426.7</gx:coord>
+          <when>2026-03-30T12:50:46.000Z</when>
+          <gx:coord>-88.083077 41.973313 426.7</gx:coord>
+          <when>2026-03-30T12:50:48.000Z</when>
+          <gx:coord>-88.083077 41.973313 426.7</gx:coord>
+          <when>2026-03-30T12:50:50.000Z</when>
+          <gx:coord>-88.083077 41.973313 426.7</gx:coord>
+          <when>2026-03-30T12:50:52.000Z</when>
+          <gx:coord>-88.083077 41.973313 426.7</gx:coord>
+          <when>2026-03-30T12:50:54.000Z</when>
+          <gx:coord>-88.083077 41.973313 426.7</gx:coord>
+          <when>2026-03-30T12:51:28.000Z</when>
+          <gx:coord>-88.096108 41.988303 0</gx:coord>
+          <when>2026-03-30T12:51:30.000Z</when>
+          <gx:coord>-88.096108 41.988303 0</gx:coord>
+          <when>2026-03-30T12:51:32.000Z</when>
+          <gx:coord>-88.096108 41.988303 0</gx:coord>
+          <when>2026-03-30T12:51:34.000Z</when>
+          <gx:coord>-88.098366 41.988785 0</gx:coord>
+          <when>2026-03-30T12:51:36.000Z</when>
+          <gx:coord>-88.098854 41.988862 0</gx:coord>
+          <when>2026-03-30T12:51:38.000Z</when>
+          <gx:coord>-88.098854 41.988862 0</gx:coord>
+          <when>2026-03-30T12:51:40.000Z</when>
+          <gx:coord>-88.098854 41.988862 0</gx:coord>
+          <when>2026-03-30T12:51:42.000Z</when>
+          <gx:coord>-88.100489 41.989197 243.8</gx:coord>
+          <when>2026-03-30T12:51:44.000Z</when>
+          <gx:coord>-88.100898 41.989281 243.8</gx:coord>
+          <when>2026-03-30T12:51:46.000Z</when>
+          <gx:coord>-88.101488 41.98938 243.8</gx:coord>
+          <when>2026-03-30T12:51:48.000Z</when>
+          <gx:coord>-88.101729 41.98942 243.8</gx:coord>
+          <when>2026-03-30T12:51:50.000Z</when>
+          <gx:coord>-88.101729 41.98942 243.8</gx:coord>
+          <when>2026-03-30T12:51:52.000Z</when>
+          <gx:coord>-88.101729 41.98942 243.8</gx:coord>
+          <when>2026-03-30T12:51:54.000Z</when>
+          <gx:coord>-88.101729 41.98942 243.8</gx:coord>
+          <when>2026-03-30T12:51:56.000Z</when>
+          <gx:coord>-88.101729 41.98942 243.8</gx:coord>
+          <when>2026-03-30T12:51:58.001Z</when>
+          <gx:coord>-88.101729 41.98942 243.8</gx:coord>
+          <when>2026-03-30T12:52:00.000Z</when>
+          <gx:coord>-88.101729 41.98942 243.8</gx:coord>
+          <when>2026-03-30T12:52:02.000Z</when>
+          <gx:coord>-88.101729 41.98942 243.8</gx:coord>
+          <when>2026-03-30T12:52:04.000Z</when>
+          <gx:coord>-88.101729 41.98942 243.8</gx:coord>
+          <when>2026-03-30T12:52:06.000Z</when>
+          <gx:coord>-88.101729 41.98942 243.8</gx:coord>
+          <when>2026-03-30T12:52:08.000Z</when>
+          <gx:coord>-88.101729 41.98942 243.8</gx:coord>
+          <when>2026-03-30T12:52:10.000Z</when>
+          <gx:coord>-88.101729 41.98942 243.8</gx:coord>
+          <when>2026-03-30T12:52:12.000Z</when>
+          <gx:coord>-88.101729 41.98942 243.8</gx:coord>
+          <when>2026-03-30T12:52:14.000Z</when>
+          <gx:coord>-88.101729 41.98942 243.8</gx:coord>
+          <when>2026-03-30T12:52:16.000Z</when>
+          <gx:coord>-88.101729 41.98942 243.8</gx:coord>
+          <when>2026-03-30T12:52:18.000Z</when>
+          <gx:coord>-88.101729 41.98942 243.8</gx:coord>
+          <when>2026-03-30T12:52:20.000Z</when>
+          <gx:coord>-88.101729 41.98942 243.8</gx:coord>
+          <when>2026-03-30T12:52:22.000Z</when>
+          <gx:coord>-88.101729 41.98942 243.8</gx:coord>
+          <when>2026-03-30T12:52:24.000Z</when>
+          <gx:coord>-88.101729 41.98942 243.8</gx:coord>
+          <when>2026-03-30T12:52:26.000Z</when>
+          <gx:coord>-88.101729 41.98942 243.8</gx:coord>
+          <when>2026-03-30T12:52:28.000Z</when>
+          <gx:coord>-88.101729 41.98942 243.8</gx:coord>
+          <when>2026-03-30T12:52:30.000Z</when>
+          <gx:coord>-88.101729 41.98942 243.8</gx:coord>
+          <when>2026-03-30T12:52:32.000Z</when>
+          <gx:coord>-88.101729 41.98942 243.8</gx:coord>
+          <when>2026-03-30T12:52:34.000Z</when>
+          <gx:coord>-88.101729 41.98942 243.8</gx:coord>
+          <when>2026-03-30T12:52:36.000Z</when>
+          <gx:coord>-88.101729 41.98942 243.8</gx:coord>
+          <when>2026-03-30T12:52:38.000Z</when>
+          <gx:coord>-88.101729 41.98942 243.8</gx:coord>
+          <when>2026-03-30T12:52:40.000Z</when>
+          <gx:coord>-88.101729 41.98942 243.8</gx:coord>
+          <when>2026-03-30T12:52:42.000Z</when>
+          <gx:coord>-88.101729 41.98942 243.8</gx:coord>
+          <when>2026-03-30T12:52:44.000Z</when>
+          <gx:coord>-88.101729 41.98942 243.8</gx:coord>
+          <when>2026-03-30T12:52:46.000Z</when>
+          <gx:coord>-88.101729 41.98942 243.8</gx:coord>
+          <when>2026-03-30T13:07:25.000Z</when>
+          <gx:coord>-88.098279 41.988722 243.8</gx:coord>
+          <when>2026-03-30T13:07:27.000Z</when>
+          <gx:coord>-88.099174 41.988908 243.8</gx:coord>
+          <when>2026-03-30T13:07:29.000Z</when>
+          <gx:coord>-88.099174 41.988908 243.8</gx:coord>
+          <when>2026-03-30T13:07:31.000Z</when>
+          <gx:coord>-88.100834 41.989281 274.3</gx:coord>
+          <when>2026-03-30T13:07:33.000Z</when>
+          <gx:coord>-88.10155 41.989426 304.8</gx:coord>
+          <when>2026-03-30T13:07:35.000Z</when>
+          <gx:coord>-88.10192 41.989513 304.8</gx:coord>
+          <when>2026-03-30T13:07:37.000Z</when>
+          <gx:coord>-88.102736 41.989655 304.8</gx:coord>
+          <when>2026-03-30T13:07:39.000Z</when>
+          <gx:coord>-88.102736 41.989655 304.8</gx:coord>
+          <when>2026-03-30T13:07:41.000Z</when>
+          <gx:coord>-88.104297 41.989975 335.3</gx:coord>
+          <when>2026-03-30T13:07:43.000Z</when>
+          <gx:coord>-88.105046 41.990112 335.3</gx:coord>
+          <when>2026-03-30T13:07:45.000Z</when>
+          <gx:coord>-88.105625 41.990258 365.8</gx:coord>
+          <when>2026-03-30T13:07:47.000Z</when>
+          <gx:coord>-88.105625 41.990258 365.8</gx:coord>
+          <when>2026-03-30T13:07:49.000Z</when>
+          <gx:coord>-88.106711 41.990491 365.8</gx:coord>
+          <when>2026-03-30T13:07:51.000Z</when>
+          <gx:coord>-88.10723 41.990616 365.8</gx:coord>
+          <when>2026-03-30T13:07:53.000Z</when>
+          <gx:coord>-88.108292 41.990891 396.2</gx:coord>
+          <when>2026-03-30T13:07:55.000Z</when>
+          <gx:coord>-88.109202 41.991143 396.2</gx:coord>
+          <when>2026-03-30T13:07:57.000Z</when>
+          <gx:coord>-88.109202 41.991143 396.2</gx:coord>
+          <when>2026-03-30T13:07:59.000Z</when>
+          <gx:coord>-88.11016 41.991422 426.7</gx:coord>
+          <when>2026-03-30T13:08:01.000Z</when>
+          <gx:coord>-88.110863 41.991608 426.7</gx:coord>
+          <when>2026-03-30T13:08:03.000Z</when>
+          <gx:coord>-88.111821 41.991841 457.2</gx:coord>
+          <when>2026-03-30T13:08:05.000Z</when>
+          <gx:coord>-88.112411 41.991989 457.2</gx:coord>
+          <when>2026-03-30T13:08:07.000Z</when>
+          <gx:coord>-88.112843 41.99212 457.2</gx:coord>
+          <when>2026-03-30T13:08:09.000Z</when>
+          <gx:coord>-88.113354 41.992167 457.2</gx:coord>
+          <when>2026-03-30T13:08:11.000Z</when>
+          <gx:coord>-88.114222 41.992264 487.7</gx:coord>
+          <when>2026-03-30T13:08:13.000Z</when>
+          <gx:coord>-88.114222 41.992264 487.7</gx:coord>
+          <when>2026-03-30T13:08:15.001Z</when>
+          <gx:coord>-88.115078 41.992167 487.7</gx:coord>
+          <when>2026-03-30T13:08:17.000Z</when>
+          <gx:coord>-88.116094 41.991669 487.7</gx:coord>
+          <when>2026-03-30T13:08:19.000Z</when>
+          <gx:coord>-88.116094 41.991669 487.7</gx:coord>
+          <when>2026-03-30T13:08:21.000Z</when>
+          <gx:coord>-88.116094 41.991669 487.7</gx:coord>
+          <when>2026-03-30T13:08:23.000Z</when>
+          <gx:coord>-88.116739 41.990584 487.7</gx:coord>
+          <when>2026-03-30T13:08:25.000Z</when>
+          <gx:coord>-88.116968 41.990112 487.7</gx:coord>
+          <when>2026-03-30T13:08:27.000Z</when>
+          <gx:coord>-88.116968 41.990112 487.7</gx:coord>
+          <when>2026-03-30T13:08:29.000Z</when>
+          <gx:coord>-88.116968 41.990112 487.7</gx:coord>
+          <when>2026-03-30T13:08:31.000Z</when>
+          <gx:coord>-88.117378 41.988303 487.7</gx:coord>
+          <when>2026-03-30T13:08:33.000Z</when>
+          <gx:coord>-88.117378 41.988303 487.7</gx:coord>
+          <when>2026-03-30T13:08:35.000Z</when>
+          <gx:coord>-88.117468 41.987366 487.7</gx:coord>
+          <when>2026-03-30T13:08:37.000Z</when>
+          <gx:coord>-88.117505 41.987046 487.7</gx:coord>
+          <when>2026-03-30T13:08:39.000Z</when>
+          <gx:coord>-88.117505 41.986534 487.7</gx:coord>
+          <when>2026-03-30T13:08:41.000Z</when>
+          <gx:coord>-88.117314 41.986022 487.7</gx:coord>
+          <when>2026-03-30T13:08:43.000Z</when>
+          <gx:coord>-88.117093 41.98558 487.7</gx:coord>
+          <when>2026-03-30T13:08:45.000Z</when>
+          <gx:coord>-88.117093 41.98558 487.7</gx:coord>
+          <when>2026-03-30T13:08:47.000Z</when>
+          <gx:coord>-88.117093 41.98558 487.7</gx:coord>
+          <when>2026-03-30T13:08:49.000Z</when>
+          <gx:coord>-88.117093 41.98558 487.7</gx:coord>
+          <when>2026-03-30T13:08:51.000Z</when>
+          <gx:coord>-88.117093 41.98558 487.7</gx:coord>
+          <when>2026-03-30T13:08:53.000Z</when>
+          <gx:coord>-88.117093 41.98558 487.7</gx:coord>
+          <when>2026-03-30T13:08:55.000Z</when>
+          <gx:coord>-88.117093 41.98558 487.7</gx:coord>
+          <when>2026-03-30T13:08:57.000Z</when>
+          <gx:coord>-88.117093 41.98558 487.7</gx:coord>
+          <when>2026-03-30T13:08:59.000Z</when>
+          <gx:coord>-88.117093 41.98558 487.7</gx:coord>
+          <when>2026-03-30T13:09:01.000Z</when>
+          <gx:coord>-88.117093 41.98558 487.7</gx:coord>
+          <when>2026-03-30T13:09:03.000Z</when>
+          <gx:coord>-88.117093 41.98558 487.7</gx:coord>
+          <when>2026-03-30T13:09:05.000Z</when>
+          <gx:coord>-88.117093 41.98558 487.7</gx:coord>
+          <when>2026-03-30T13:09:07.000Z</when>
+          <gx:coord>-88.117093 41.98558 487.7</gx:coord>
+          <when>2026-03-30T13:09:09.000Z</when>
+          <gx:coord>-88.117093 41.98558 487.7</gx:coord>
+          <when>2026-03-30T13:09:11.000Z</when>
+          <gx:coord>-88.117093 41.98558 487.7</gx:coord>
+          <when>2026-03-30T13:09:13.000Z</when>
+          <gx:coord>-88.117093 41.98558 487.7</gx:coord>
+          <when>2026-03-30T13:09:15.000Z</when>
+          <gx:coord>-88.117093 41.98558 487.7</gx:coord>
+          <when>2026-03-30T13:09:17.000Z</when>
+          <gx:coord>-88.117093 41.98558 487.7</gx:coord>
+          <when>2026-03-30T13:09:19.000Z</when>
+          <gx:coord>-88.117093 41.98558 487.7</gx:coord>
+          <when>2026-03-30T13:09:21.000Z</when>
+          <gx:coord>-88.117093 41.98558 487.7</gx:coord>
+          <when>2026-03-30T13:09:23.000Z</when>
+          <gx:coord>-88.117093 41.98558 487.7</gx:coord>
+          <when>2026-03-30T13:09:25.000Z</when>
+          <gx:coord>-88.117093 41.98558 487.7</gx:coord>
+          <when>2026-03-30T13:09:27.000Z</when>
+          <gx:coord>-88.117093 41.98558 487.7</gx:coord>
+          <when>2026-03-30T13:09:29.000Z</when>
+          <gx:coord>-88.117093 41.98558 487.7</gx:coord>
+          <when>2026-03-30T13:09:31.000Z</when>
+          <gx:coord>-88.117093 41.98558 487.7</gx:coord>
+          <when>2026-03-30T13:09:33.000Z</when>
+          <gx:coord>-88.117093 41.98558 487.7</gx:coord>
+          <when>2026-03-30T13:09:35.000Z</when>
+          <gx:coord>-88.117093 41.98558 487.7</gx:coord>
+          <when>2026-03-30T13:09:37.000Z</when>
+          <gx:coord>-88.117093 41.98558 487.7</gx:coord>
+          <when>2026-03-30T13:09:39.000Z</when>
+          <gx:coord>-88.117093 41.98558 487.7</gx:coord>
+          <when>2026-03-30T13:09:41.000Z</when>
+          <gx:coord>-88.117093 41.98558 487.7</gx:coord>
+      </gx:Track>
+    </Placemark>
+  </Document>
+</kml>
