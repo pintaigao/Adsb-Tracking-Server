@@ -46,6 +46,9 @@ public sealed class FlightImportService(HttpClient httpClient, IOptions<FlightTr
 		 * 而是整份 KML 内容和这次 execution 的上下文信息。
 		 */
 		var rawKml = await File.ReadAllTextAsync(execution.OutputKmlPath, cancellationToken);
+		
+		// 建立对另一个服务器的Request，组装 payload
+		using var request = new HttpRequestMessage(HttpMethod.Post, $"{baseUrl.TrimEnd('/')}/api/v1/flight/internal/track-schedule-import");
 		var payload = new {
 			UserId = schedule.UserId,
 			ScheduleId = schedule.Id,
@@ -56,11 +59,7 @@ public sealed class FlightImportService(HttpClient httpClient, IOptions<FlightTr
 			RawKml = rawKml,
 			RawFilename = Path.GetFileName(execution.OutputKmlPath),
 		};
-
-		using var request = new HttpRequestMessage(
-			HttpMethod.Post,
-			$"{baseUrl.TrimEnd('/')}/flight/internal/track-schedule-import");
-
+		
 		/*
 		 * 这是服务到服务的内部调用。
 		 * 如果配置了 service token，就放到请求头里让主后端校验。

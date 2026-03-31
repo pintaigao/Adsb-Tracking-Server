@@ -373,7 +373,7 @@ public sealed class TrackScheduleService(AdsbTrackerDbContext dbContext, PiTrack
 			ErrorMessage = execution.ErrorMessage,
 			DownloadUrl = string.IsNullOrWhiteSpace(execution.OutputKmlPath)
 				? null
-				: $"/adsb/flights/track-schedules/executions/{execution.Id}/download",
+				: $"/api/v1/adsb/flights/track-schedules/executions/{execution.Id}/download",
 		};
 
 	private sealed record NormalizedRequest(

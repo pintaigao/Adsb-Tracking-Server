@@ -133,10 +133,10 @@ http://localhost:5053
 
 ## Internal API
 
-- `GET /adsb/flights/live-aircraft`
-- `POST /adsb/flights/track-schedules`
-- `GET /adsb/flights/track-schedules`
-- `GET /adsb/flights/track-schedules/{id}`
-- `POST /adsb/flights/track-schedules/{id}/cancel`
-- `GET /adsb/flights/track-schedules/{id}/executions`
-- `GET /adsb/flights/track-schedules/executions/{executionId}/download`
+- `GET /api/v1/adsb/flights/live-aircraft`
+- `POST /api/v1/adsb/flights/track-schedules`
+- `GET /api/v1/adsb/flights/track-schedules`
+- `GET /api/v1/adsb/flights/track-schedules/{id}`
+- `POST /api/v1/adsb/flights/track-schedules/{id}/cancel`
+- `GET /api/v1/adsb/flights/track-schedules/{id}/executions`
+- `GET /api/v1/adsb/flights/track-schedules/executions/{executionId}/download`
