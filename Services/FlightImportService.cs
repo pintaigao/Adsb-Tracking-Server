@@ -48,7 +48,7 @@ public sealed class FlightImportService(HttpClient httpClient, IOptions<FlightTr
 		var rawKml = await File.ReadAllTextAsync(execution.OutputKmlPath, cancellationToken);
 		
 		// 建立对另一个服务器的Request，组装 payload
-		using var request = new HttpRequestMessage(HttpMethod.Post, $"{baseUrl.TrimEnd('/')}/api/v1/flight/internal/track-schedule-import");
+		using var request = new HttpRequestMessage(HttpMethod.Post, $"{baseUrl.TrimEnd('/')}/flight/internal/track-schedule-import");
 		var payload = new {
 			UserId = schedule.UserId,
 			ScheduleId = schedule.Id,

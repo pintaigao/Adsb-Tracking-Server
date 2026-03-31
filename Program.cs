@@ -77,6 +77,6 @@ if (!skipDbMigrate) {
  */
 app.UseHttpsRedirection();
 app.UseAuthorization();
-app.MapGroup("/api/v1").MapControllers();
+app.MapControllers();
 
 app.Run();
