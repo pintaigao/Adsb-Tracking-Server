@@ -50,9 +50,7 @@ builder.Services.AddScoped<TrackExportService>();
 builder.Services.AddHttpClient<FeederLiveAircraftService>();
 builder.Services.AddHttpClient<FlightImportService>();
 
-var runtimeConfig = builder.Configuration.GetSection("Runtime");
-var disableTrackScheduleWorker = runtimeConfig.GetValue<bool>("DisableTrackScheduleWorker");
-
+var disableTrackScheduleWorker = builder.Configuration.GetSection("Runtime").GetValue<bool>("DisableTrackScheduleWorker");
 /*
  * Worker 是内部的“时钟”：
  * 它负责轮询到期的 schedule。
@@ -63,8 +61,7 @@ if (!disableTrackScheduleWorker) {
 }
 
 var app = builder.Build();
-
-var skipDbMigrate = runtimeConfig.GetValue<bool>("SkipDbMigrate");
+var skipDbMigrate = builder.Configuration.GetSection("Runtime").GetValue<bool>("SkipDbMigrate");
 
 /*
  * 正常启动时，先把数据库 schema 迁移到最新，再开始对外提供接口。
