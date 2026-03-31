@@ -9,11 +9,12 @@ using Microsoft.Extensions.Options;
 namespace ADSB.Tracker.Server.Services;
 
 /*
- * Filters one daily raw jsonl log down to the points for a specific schedule and writes gx:Track KML.
+ * 这个服务把某一天的原始 jsonl 日志过滤成某条 schedule 对应的轨迹点，
+ * 然后写出 gx:Track 格式的 KML。
  */
 public sealed class TrackExportService(IOptions<TrackerStorageOptions> storageOptions)
 {
-    /* Main export entry point used by TrackScheduleService after the raw file has been fetched locally. */
+    /* TrackScheduleService 在拿到本地 raw 文件之后，会从这里进入导出流程。 */
     public async Task<(int MatchedPointCount, string? OutputPath)> ExportAsync(
         string rawPath,
         string targetType,
@@ -50,7 +51,7 @@ public sealed class TrackExportService(IOptions<TrackerStorageOptions> storageOp
     }
 
     /*
-     * Stream the jsonl file line-by-line so large daily files do not need to be loaded into memory at once.
+     * 按行流式读取 jsonl，这样即使一天的 raw 文件很大，也不用一次性全部读进内存。
      */
     private static async Task<List<RawTrackPoint>> LoadFilteredPointsAsync(
         string rawPath,
@@ -151,7 +152,7 @@ public sealed class TrackExportService(IOptions<TrackerStorageOptions> storageOp
     }
 
     /*
-     * Build the KML payload that can later be downloaded directly or imported into Flight-Training.
+     * 这里拼出最终的 KML 内容，后面既可以直接下载，也可以导入到 Flight-Training。
      */
     private static string BuildKml(string displayName, string targetValue, IReadOnlyList<RawTrackPoint> points)
     {

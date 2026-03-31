@@ -7,8 +7,8 @@ using Microsoft.Extensions.Options;
 namespace ADSB.Tracker.Server.Services;
 
 /*
- * Thin HTTP client for the Ubuntu feeder's live-aircraft endpoint.
- * This path is real-time and intentionally separate from the schedule/raw-file pipeline.
+ * 这是一个很薄的 HTTP client，用来请求 Ubuntu feeder 的 live-aircraft 接口。
+ * 这条链路是实时链路，故意和 schedule/raw-file 导出链路分开。
  */
 public sealed class FeederLiveAircraftService(
     HttpClient httpClient,
@@ -17,7 +17,7 @@ public sealed class FeederLiveAircraftService(
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
-    /* Fetch one current live-aircraft snapshot from the feeder service. */
+    /* 从 feeder 服务抓取当前这一刻的 live-aircraft 快照。 */
     public async Task<LiveAircraftResponse> GetSnapshotAsync(CancellationToken cancellationToken)
     {
         var feederUrl = ResolveValue(configuration["FEEDER_LIVE_AIRCRAFT_URL"], options.Value.Url);

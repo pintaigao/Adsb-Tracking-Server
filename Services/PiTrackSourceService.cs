@@ -5,16 +5,17 @@ using Microsoft.Extensions.Options;
 namespace ADSB.Tracker.Server.Services;
 
 /*
- * Finds the daily raw ADS-B jsonl file for a schedule and copies it into the execution working directory.
- * The source can be local disk or a remote Ubuntu host reached over scp.
+ * 这个服务负责找到某一天的原始 ADS-B jsonl 文件，
+ * 并把它复制到当前 execution 的工作目录里。
+ * 来源可以是本机磁盘，也可以是通过 scp 访问的 Ubuntu 远程机器。
  */
 public sealed class PiTrackSourceService(
     IOptions<PiTrackSourceOptions> sourceOptions,
     IOptions<TrackerStorageOptions> storageOptions)
 {
 	/*
-	 * Always return a local working copy so downstream export code does not care whether the source
-	 * originally lived on this machine or on the Ubuntu receiver.
+	 * 无论源数据原来在本机还是 Ubuntu receiver 上，
+	 * 这里都统一返回一个本地工作副本，后面的导出逻辑就不用关心来源差异。
 	 */
 	public async Task<(string RemotePath, string LocalPath)?> FetchRawFileAsync(
 		DateOnly watchDateUtc,
@@ -39,7 +40,7 @@ public sealed class PiTrackSourceService(
         };
 	}
 
-    /* Simple mode for co-located deployments: copy the daily file from a local raw directory. */
+    /* 简单模式：适合服务和原始数据目录在同一台机器上，直接从本地目录复制。 */
     private static async Task<(string RemotePath, string LocalPath)?> FetchLocalAsync(
         string rawRoot,
         string fileName,
@@ -64,7 +65,7 @@ public sealed class PiTrackSourceService(
         return (sourcePath, destinationPath);
     }
 
-    /* Current Mac + Ubuntu mode: copy exactly one daily file over scp when a schedule executes. */
+    /* 当前 Mac + Ubuntu 场景：schedule 执行时按需通过 scp 拉取某一天的单个文件。 */
     private static async Task<(string RemotePath, string LocalPath)?> FetchRemoteOverScpAsync(
         PiTrackSourceOptions options,
         string fileName,

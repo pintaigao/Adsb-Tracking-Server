@@ -1,8 +1,8 @@
 namespace ADSB.Tracker.Server.Data.Entities;
 
 /*
- * One concrete attempt to execute a schedule.
- * Records where the raw log came from and whether a KML export was produced.
+ * 这是某条 schedule 的一次具体执行尝试。
+ * 它记录原始日志从哪里来，以及最后有没有成功导出 KML。
  */
 public sealed class WatchExecution
 {
@@ -14,13 +14,13 @@ public sealed class WatchExecution
     public DateTime? FinishedAtUtc { get; set; }
     public int MatchedPointCount { get; set; }
 
-    /* Original source path. In SSH mode this is the remote Ubuntu path. */
+    /* 原始来源路径。在 SSH 模式下，这里记录的是 Ubuntu 上的远程路径。 */
     public string? RemoteRawPath { get; set; }
 
-    /* Local working copy used by filtering/export logic. */
+    /* 过滤和导出逻辑真正使用的本地工作副本路径。 */
     public string? LocalRawPath { get; set; }
 
-    /* Final KML output path when export succeeds. */
+    /* 导出成功后最终生成的 KML 文件路径。 */
     public string? OutputKmlPath { get; set; }
     public string? ErrorMessage { get; set; }
     public DateTime CreatedAtUtc { get; set; }

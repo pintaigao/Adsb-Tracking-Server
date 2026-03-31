@@ -8,11 +8,11 @@ using Microsoft.EntityFrameworkCore;
 namespace ADSB.Tracker.Server.Services;
 
 /*
- * Main application service for the scheduled-export side of ADSB-Tracker-Server.
- * Controllers use it for schedule CRUD-like actions, and the background worker uses it to run due jobs.
+ * 这是 ADSB-Tracker-Server 里 schedule 导出链路的主应用服务。
+ * Controller 用它做 schedule 相关接口，后台 worker 也用它执行到期任务。
  */
 public sealed class TrackScheduleService(AdsbTrackerDbContext dbContext, PiTrackSourceService piTrackSourceService, TrackExportService trackExportService, FlightImportService flightImportService, ILogger<TrackScheduleService> logger) {
-	/* Create a new schedule definition. No raw data is read at this point. */
+	/* 创建一条新的 schedule 定义。这个阶段还不会去读 raw 数据。 */
 	public async Task<TrackScheduleDetailResponse> CreateAsync(
 		string userId,
 		CreateTrackScheduleRequest request,
@@ -40,8 +40,8 @@ public sealed class TrackScheduleService(AdsbTrackerDbContext dbContext, PiTrack
 	}
 
 	/*
-	 * List active schedules and decorate them with their latest execution summary.
-	 * Archived schedules are excluded from the default UI list.
+	 * 列出当前活跃的 schedule，并补上每条 schedule 的最近一次 execution 摘要。
+	 * 已归档的 schedule 会从默认列表里排除。
 	 */
 	public async Task<IReadOnlyList<TrackScheduleListItemResponse>> ListAsync(string userId, CancellationToken cancellationToken) {
 		var schedules = await dbContext.WatchSchedules
@@ -60,7 +60,7 @@ public sealed class TrackScheduleService(AdsbTrackerDbContext dbContext, PiTrack
 			.ToList();
 	}
 
-	/* Load one schedule together with its execution history. */
+	/* 加载单条 schedule 以及它的执行历史。 */
 	public async Task<TrackScheduleDetailResponse?> GetAsync(
 		string userId,
 		long id,
@@ -82,7 +82,7 @@ public sealed class TrackScheduleService(AdsbTrackerDbContext dbContext, PiTrack
 		return MapDetail(schedule, executions.FirstOrDefault(), executions);
 	}
 
-	/* Cancel a schedule only while it is still waiting to run. */
+	/* 只有 schedule 还没开始跑的时候，才允许取消。 */
 	public async Task<bool> CancelAsync(string userId, long id, CancellationToken cancellationToken) {
 		var schedule = await dbContext.WatchSchedules
 			.FirstOrDefaultAsync(x => x.UserId == userId && x.Id == id, cancellationToken);
@@ -97,7 +97,7 @@ public sealed class TrackScheduleService(AdsbTrackerDbContext dbContext, PiTrack
 		return true;
 	}
 
-	/* Soft-delete for finished schedules. The row stays in MySQL but the default list hides it. */
+	/* 已结束 schedule 的软删除。记录仍保留在 MySQL，只是不出现在默认列表里。 */
 	public async Task<bool> ArchiveAsync(string userId, long id, CancellationToken cancellationToken) {
 		var schedule = await dbContext.WatchSchedules
 			.FirstOrDefaultAsync(x => x.UserId == userId && x.Id == id, cancellationToken);
@@ -112,7 +112,7 @@ public sealed class TrackScheduleService(AdsbTrackerDbContext dbContext, PiTrack
 		return true;
 	}
 
-	/* Return all execution attempts for a schedule. */
+	/* 返回某条 schedule 的所有 execution 记录。 */
 	public async Task<IReadOnlyList<TrackExecutionResponse>?> ListExecutionsAsync(
 		string userId,
 		long scheduleId,
@@ -134,7 +134,7 @@ public sealed class TrackScheduleService(AdsbTrackerDbContext dbContext, PiTrack
 		return executions.Select(MapExecution).ToList();
 	}
 
-	/* Resolve the export file for download if an execution produced one. */
+	/* 如果某次 execution 成功导出文件，返回它对应的下载路径。 */
 	public async Task<(string FilePath, string DownloadName)?> GetExecutionDownloadAsync(
 		string userId,
 		long executionId,
@@ -150,7 +150,7 @@ public sealed class TrackScheduleService(AdsbTrackerDbContext dbContext, PiTrack
 		return (execution.OutputKmlPath, Path.GetFileName(execution.OutputKmlPath));
 	}
 
-	/* Worker entry point: find schedules whose UTC end time has passed and execute them now. */
+	/* Worker 从这里进入：找出 UTC 结束时间已到的 schedule 并立即执行。 */
 	public async Task ExecuteDueSchedulesAsync(CancellationToken cancellationToken) {
 		var now = DateTime.UtcNow;
 		var nowDate = DateOnly.FromDateTime(now);
@@ -168,8 +168,11 @@ public sealed class TrackScheduleService(AdsbTrackerDbContext dbContext, PiTrack
 	}
 
 	/*
-	 * Full schedule execution pipeline:
-	 * fetch raw data, filter/export KML, persist execution result, then notify Flight-Training.
+	 * 这是完整的 schedule 执行流水线：
+	 * 1. 取 raw 数据
+	 * 2. 过滤并导出 KML
+	 * 3. 落 execution 结果
+	 * 4. 回调 Flight-Training
 	 */
 	private async Task ExecuteSingleScheduleAsync(WatchSchedule schedule, CancellationToken cancellationToken) {
 		var now = DateTime.UtcNow;
@@ -237,7 +240,7 @@ public sealed class TrackScheduleService(AdsbTrackerDbContext dbContext, PiTrack
 		}
 	}
 
-	/* Tail-based schedules need an extra lookup because raw logs are usually keyed by hex code. */
+	/* tail 类型的 schedule 需要额外做一次查表，因为 raw 日志通常按 hex code 识别。 */
 	private async Task<string> ResolveTargetValueAsync(WatchSchedule schedule, CancellationToken cancellationToken) {
 		if (!string.Equals(schedule.TargetType, TrackTargetTypes.Tail, StringComparison.OrdinalIgnoreCase)) {
 			return schedule.TargetValue;
@@ -261,7 +264,7 @@ public sealed class TrackScheduleService(AdsbTrackerDbContext dbContext, PiTrack
 		|| string.Equals(status, TrackScheduleStatuses.Failed, StringComparison.OrdinalIgnoreCase);
 
 	/*
-	 * Keep API validation close to schedule creation so invalid UTC dates/times never hit the database.
+	 * 把 API 输入校验放在 schedule 创建附近，避免非法 UTC 日期/时间直接写进数据库。
 	 */
 	private static NormalizedRequest NormalizeAndValidate(CreateTrackScheduleRequest request) {
 		var displayName = request.DisplayName.Trim();
@@ -298,7 +301,7 @@ public sealed class TrackScheduleService(AdsbTrackerDbContext dbContext, PiTrack
 		return new NormalizedRequest(displayName, targetType, targetValue, watchDateUtc, startZulu, endZulu);
 	}
 
-	/* Load latest executions in bulk so the list endpoint avoids one query per schedule. */
+	/* 批量加载 latest execution，避免列表接口对每条 schedule 额外打一条查询。 */
 	private async Task<Dictionary<long, WatchExecution>> LoadLatestExecutionsAsync(
 		IReadOnlyList<WatchSchedule> schedules,
 		CancellationToken cancellationToken) {

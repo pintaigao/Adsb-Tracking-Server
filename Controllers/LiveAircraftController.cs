@@ -7,13 +7,13 @@ namespace ADSB.Tracker.Server.Controllers;
 [ApiController]
 [Route("adsb/flights/live-aircraft")]
 /*
- * Small real-time endpoint that exposes the Ubuntu feeder snapshot through this service.
- * No MySQL schedule state is involved here.
+ * 这是一个很小的实时接口，通过本服务把 Ubuntu feeder 的快照转发出来。
+ * 这条链路完全不涉及 MySQL 里的 schedule 状态。
  */
 public sealed class LiveAircraftController(FeederLiveAircraftService feederLiveAircraftService)
     : ControllerBase
 {
-    /* Return one current snapshot from the feeder client. */
+    /* 返回 feeder client 当前抓到的一份实时快照。 */
     [HttpGet]
     public async Task<ActionResult<LiveAircraftResponse>> Get(CancellationToken cancellationToken)
         => Ok(await feederLiveAircraftService.GetSnapshotAsync(cancellationToken));

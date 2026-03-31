@@ -1,8 +1,8 @@
 namespace ADSB.Tracker.Server.Data.Entities;
 
 /*
- * Durable schedule definition created by a user.
- * It says which aircraft target to watch and which UTC window to search later.
+ * 这是用户创建的持久化 schedule 定义。
+ * 它描述的是：后面要在什么 UTC 时间窗口里查哪个飞机目标。
  */
 public sealed class WatchSchedule
 {
@@ -15,14 +15,14 @@ public sealed class WatchSchedule
     public TimeOnly StartZulu { get; set; }
     public TimeOnly EndZulu { get; set; }
 
-    /* Schedule lifecycle state, for example scheduled/running/completed/archived. */
+    /* schedule 的生命周期状态，例如 scheduled / running / completed / archived。 */
     public string Status { get; set; } = string.Empty;
 
-    /* Cached pointer to the most recent execution so list endpoints can show latest status cheaply. */
+    /* 缓存最近一次 execution 的指针，方便列表接口便宜地展示最新状态。 */
     public long? LatestExecutionId { get; set; }
     public DateTime CreatedAtUtc { get; set; }
     public DateTime UpdatedAtUtc { get; set; }
 
-    /* Full execution history for this schedule. */
+    /* 这条 schedule 的完整执行历史。 */
     public List<WatchExecution> Executions { get; set; } = [];
 }

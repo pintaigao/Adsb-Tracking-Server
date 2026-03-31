@@ -7,11 +7,11 @@ namespace ADSB.Tracker.Server.Controllers;
 [ApiController]
 [Route("adsb/flights/track-schedules")]
 /*
- * HTTP facade for the scheduled-export subsystem.
- * It stays thin on purpose and delegates all domain behavior to TrackScheduleService.
+ * 这是 schedule 导出子系统的 HTTP 外观层。
+ * 它故意保持很薄，真正的领域逻辑都交给 TrackScheduleService。
  */
 public sealed class TrackSchedulesController(TrackScheduleService trackScheduleService) : ControllerBase {
-	/* Create a new schedule definition. */
+	/* 创建一条新的 schedule 定义。 */
 	[HttpPost]
 	public async Task<ActionResult<TrackScheduleDetailResponse>> Create([FromBody] CreateTrackScheduleRequest request, CancellationToken cancellationToken) {
 		try {
@@ -23,33 +23,33 @@ public sealed class TrackSchedulesController(TrackScheduleService trackScheduleS
 		}
 	}
 
-	/* List the caller's active schedules. */
+	/* 列出当前调用者的活跃 schedule。 */
 	[HttpGet]
 	public async Task<ActionResult<IReadOnlyList<TrackScheduleListItemResponse>>> List(CancellationToken cancellationToken) => Ok(await trackScheduleService.ListAsync(RequireUserId(), cancellationToken));
 
-	/* Get one schedule and its execution history. */
+	/* 读取单条 schedule 及其执行历史。 */
 	[HttpGet("{id:long}")]
 	public async Task<ActionResult<TrackScheduleDetailResponse>> GetById(long id, CancellationToken cancellationToken) {
 		var item = await trackScheduleService.GetAsync(RequireUserId(), id, cancellationToken);
 		return item is null ? NotFound() : Ok(item);
 	}
 
-	/* Cancel a schedule before it starts. */
+	/* schedule 开始执行前允许取消。 */
 	[HttpPost("{id:long}/cancel")]
 	public async Task<IActionResult> Cancel(long id, CancellationToken cancellationToken) => await trackScheduleService.CancelAsync(RequireUserId(), id, cancellationToken) ? NoContent() : NotFound();
 
-	/* Soft-delete a finished schedule from the default UI list. */
+	/* 把已结束 schedule 软删除，使其从默认 UI 列表中消失。 */
 	[HttpPost("{id:long}/archive")]
 	public async Task<IActionResult> Archive(long id, CancellationToken cancellationToken) => await trackScheduleService.ArchiveAsync(RequireUserId(), id, cancellationToken) ? NoContent() : NotFound();
 
-	/* List concrete execution attempts for one schedule. */
+	/* 列出某条 schedule 的具体 execution 记录。 */
 	[HttpGet("{id:long}/executions")]
 	public async Task<ActionResult<IReadOnlyList<TrackExecutionResponse>>> ListExecutions(long id, CancellationToken cancellationToken) {
 		var executions = await trackScheduleService.ListExecutionsAsync(RequireUserId(), id, cancellationToken);
 		return executions is null ? NotFound() : Ok(executions);
 	}
 
-	/* Download the KML export produced by a completed execution. */
+	/* 下载某次已完成 execution 生成的 KML。 */
 	[HttpGet("executions/{executionId:long}/download")]
 	public async Task<IActionResult> DownloadExecution(long executionId, CancellationToken cancellationToken) {
 		var file = await trackScheduleService.GetExecutionDownloadAsync(RequireUserId(), executionId, cancellationToken);
@@ -61,8 +61,8 @@ public sealed class TrackSchedulesController(TrackScheduleService trackScheduleS
 	}
 
 	/*
-	 * This service trusts its upstream caller to tell it which user scope is being acted on.
-	 * Flight-Training-Server provides this header when proxying authenticated requests.
+	 * 这个服务信任上游调用方告诉它当前操作的是哪个用户。
+	 * 当 Flight-Training-Server 代理认证后的请求时，会带上这个头。
 	 */
 	private string RequireUserId() {
 		if (Request.Headers.TryGetValue("X-User-Id", out var values)) {

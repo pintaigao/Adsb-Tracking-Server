@@ -5,16 +5,16 @@ using ADSB.Tracker.Server.Workers;
 using Microsoft.EntityFrameworkCore;
 
 /*
- * This service stays intentionally narrow:
- * - it owns the schedule/execution database for ADS-B track exports
- * - it exposes a thin real-time live-aircraft endpoint backed by the Ubuntu feeder
- * - it publishes completed schedule exports back to Flight-Training
+ * 这个服务的职责刻意收得很窄：
+ * - 它自己拥有 ADS-B 轨迹导出的 schedule / execution 数据库
+ * - 它对外暴露一个很薄的 live-aircraft 实时接口，底层数据来自 Ubuntu feeder
+ * - 它在 schedule 完成后把导出结果回调给 Flight-Training
  */
 var builder = WebApplication.CreateBuilder(args);
 
 /*
- * Load machine-local overrides after shared appsettings so secrets and per-machine paths
- * can stay out of Git while still overriding defaults.
+ * 在共享的 appsettings 之后再加载本机覆盖配置，
+ * 这样密钥和机器相关路径就可以不进 Git，同时仍然覆盖默认值。
  */
 builder.Configuration
 	.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true)
@@ -29,8 +29,8 @@ var connectionString = builder.Configuration.GetConnectionString("Default") ?? t
 var mysqlVersion = new MySqlServerVersion(new Version(8, 0, 36));
 
 /*
- * ADSB-Tracker-Server owns its own schema (`adsb_tracker`).
- * Other services should call its API instead of reaching into this database directly.
+ * ADSB-Tracker-Server 自己拥有 `adsb_tracker` 这套 schema。
+ * 其他服务应该调用它的 API，而不是直接读写这套数据库。
  */
 builder.Services.AddDbContext<AdsbTrackerDbContext>(options => options.UseMySql(connectionString, mysqlVersion));
 
@@ -38,10 +38,10 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 
 /*
- * Core services:
- * - TrackScheduleService orchestrates schedule lifecycle
- * - PiTrackSourceService fetches the raw jsonl file
- * - TrackExportService filters points and writes KML
+ * 核心服务：
+ * - TrackScheduleService 负责串起 schedule 生命周期
+ * - PiTrackSourceService 负责拿到原始 jsonl
+ * - TrackExportService 负责过滤点并写出 KML
  */
 builder.Services.AddScoped<TrackScheduleService>();
 builder.Services.AddScoped<PiTrackSourceService>();
@@ -50,8 +50,9 @@ builder.Services.AddHttpClient<FeederLiveAircraftService>();
 builder.Services.AddHttpClient<FlightImportService>();
 
 /*
- * The worker is the internal "clock" for due schedules.
- * It can be disabled when only the live-aircraft path is needed during local debugging.
+ * Worker 是内部的“时钟”：
+ * 它负责轮询到期的 schedule。
+ * 如果本地只想调试 live-aircraft，这个 worker 可以关闭。
  */
 if (!IsFlagEnabled(builder.Configuration, "DISABLE_TRACK_SCHEDULE_WORKER")) {
 	builder.Services.AddHostedService<TrackScheduleExecutionWorker>();
@@ -62,7 +63,7 @@ var app = builder.Build();
 var skipDbMigrate = IsFlagEnabled(builder.Configuration, "SKIP_DB_MIGRATE");
 
 /*
- * On normal startup, make sure the schema is current before requests start hitting controllers.
+ * 正常启动时，先把数据库 schema 迁移到最新，再开始对外提供接口。
  */
 if (!skipDbMigrate) {
 	using var scope = app.Services.CreateScope();
@@ -71,7 +72,7 @@ if (!skipDbMigrate) {
 }
 
 /*
- * This is an internal service, so the HTTP pipeline stays deliberately small.
+ * 这是一个内部微服务，所以 HTTP pipeline 故意保持得很薄。
  */
 app.UseHttpsRedirection();
 app.UseAuthorization();

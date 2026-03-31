@@ -4,29 +4,29 @@ using Microsoft.EntityFrameworkCore;
 namespace ADSB.Tracker.Server.Data;
 
 /*
- * EF Core view of the MySQL schema owned by ADSB-Tracker-Server.
- * This service stores schedule jobs, execution history, and tail/hex mappings.
+ * 这是 ADSB-Tracker-Server 自己拥有的 MySQL schema 在 EF Core 里的映射。
+ * 这里定义了 schedule、execution 和 tail/hex mapping 这几张表。
  */
 public sealed class AdsbTrackerDbContext(DbContextOptions<AdsbTrackerDbContext> options)
     : DbContext(options)
 {
-    /* User-scoped schedule definitions. */
+    /* 用户维度的 schedule 定义。 */
     public DbSet<WatchSchedule> WatchSchedules => Set<WatchSchedule>();
 
-    /* Execution history for schedules. */
+    /* schedule 的执行历史。 */
     public DbSet<WatchExecution> WatchExecutions => Set<WatchExecution>();
 
-    /* Optional lookup table used to turn tail numbers into hex codes. */
+    /* 可选的 lookup 表，用于把 tail number 转成 hex code。 */
     public DbSet<TailHexMapping> TailHexMappings => Set<TailHexMapping>();
 
     /*
-     * Database-level mapping rules: table names, lengths, indexes, and relationships.
+     * 这里放数据库层面的映射规则：表名、字段长度、索引、关联关系。
      */
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<WatchSchedule>(entity =>
         {
-            /* High-level job definition: "watch this target on this UTC date/time window". */
+            /* 高层 job 定义：在某个 UTC 日期/时间窗口里监控某个目标。 */
             entity.ToTable("watch_schedules");
             entity.HasKey(x => x.Id);
             entity.Property(x => x.UserId).HasMaxLength(64).IsRequired();
@@ -45,7 +45,7 @@ public sealed class AdsbTrackerDbContext(DbContextOptions<AdsbTrackerDbContext> 
 
         modelBuilder.Entity<WatchExecution>(entity =>
         {
-            /* Concrete run of one schedule, including source/raw paths and final KML output. */
+            /* 一次具体执行记录，包含原始数据来源路径和最终 KML 输出路径。 */
             entity.ToTable("watch_executions");
             entity.HasKey(x => x.Id);
             entity.Property(x => x.UserId).HasMaxLength(64).IsRequired();
@@ -59,7 +59,7 @@ public sealed class AdsbTrackerDbContext(DbContextOptions<AdsbTrackerDbContext> 
 
         modelBuilder.Entity<TailHexMapping>(entity =>
         {
-            /* Tail-based schedules often need this mapping because raw ADS-B logs are keyed by hex. */
+            /* tail 类型的 schedule 往往需要这张映射表，因为原始 ADS-B 日志通常按 hex 识别。 */
             entity.ToTable("tail_hex_mappings");
             entity.HasKey(x => x.Id);
             entity.Property(x => x.UserId).HasMaxLength(64);

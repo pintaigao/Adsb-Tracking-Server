@@ -1,6 +1,6 @@
 namespace ADSB.Tracker.Server.Data.Entities;
 
-/* Optional helper table that resolves a tail number to the hex code found in raw ADS-B logs. */
+/* 这是一个可选辅助表，用来把 tail number 解析成原始 ADS-B 日志里的 hex code。 */
 public sealed class TailHexMapping
 {
     public long Id { get; set; }
