@@ -20,6 +20,7 @@ builder.Configuration
 	.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true)
 	.AddEnvironmentVariables();
 
+// 把配置绑定到 Options 对象上，方便后续注入使用。
 builder.Services.Configure<PiTrackSourceOptions>(builder.Configuration.GetSection(PiTrackSourceOptions.SectionName));
 builder.Services.Configure<TrackerStorageOptions>(builder.Configuration.GetSection(TrackerStorageOptions.SectionName));
 builder.Services.Configure<FeederLiveAircraftOptions>(builder.Configuration.GetSection(FeederLiveAircraftOptions.SectionName));
@@ -49,18 +50,21 @@ builder.Services.AddScoped<TrackExportService>();
 builder.Services.AddHttpClient<FeederLiveAircraftService>();
 builder.Services.AddHttpClient<FlightImportService>();
 
+var runtimeConfig = builder.Configuration.GetSection("Runtime");
+var disableTrackScheduleWorker = runtimeConfig.GetValue<bool>("DisableTrackScheduleWorker");
+
 /*
  * Worker 是内部的“时钟”：
  * 它负责轮询到期的 schedule。
  * 如果本地只想调试 live-aircraft，这个 worker 可以关闭。
  */
-if (!IsFlagEnabled(builder.Configuration, "DISABLE_TRACK_SCHEDULE_WORKER")) {
+if (!disableTrackScheduleWorker) {
 	builder.Services.AddHostedService<TrackScheduleExecutionWorker>();
 }
 
 var app = builder.Build();
 
-var skipDbMigrate = IsFlagEnabled(builder.Configuration, "SKIP_DB_MIGRATE");
+var skipDbMigrate = runtimeConfig.GetValue<bool>("SkipDbMigrate");
 
 /*
  * 正常启动时，先把数据库 schema 迁移到最新，再开始对外提供接口。
@@ -79,5 +83,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
-static bool IsFlagEnabled(IConfiguration configuration, string key) => string.Equals(configuration[key], "1", StringComparison.OrdinalIgnoreCase) || string.Equals(Environment.GetEnvironmentVariable(key), "1", StringComparison.OrdinalIgnoreCase);

@@ -60,7 +60,17 @@ FEEDER_LIVE_AIRCRAFT_URL="http://192.168.86.53:8080/live-aircraft"
 FEEDER_LIVE_AIRCRAFT_TOKEN=""
 FLIGHT_TRAINING_SERVER_BASE_URL="http://localhost:3000"
 FLIGHT_TRAINING_SERVER_SERVICE_TOKEN=""
-DISABLE_TRACK_SCHEDULE_WORKER=1
+```
+
+Runtime toggles now live in `appsettings.Local.json` as booleans:
+
+```json
+{
+  "Runtime": {
+    "DisableTrackScheduleWorker": false,
+    "SkipDbMigrate": false
+  }
+}
 ```
 
 `PiTrackSource` supports two modes:
@@ -81,13 +91,13 @@ DOTNET_CLI_HOME=/tmp dotnet tool restore
 Create a migration:
 
 ```bash
-SKIP_DB_MIGRATE=1 DOTNET_CLI_HOME=/tmp dotnet dotnet-ef migrations add InitialTrackSchedules
+DOTNET_CLI_HOME=/tmp dotnet dotnet-ef migrations add InitialTrackSchedules
 ```
 
 Apply migrations:
 
 ```bash
-SKIP_DB_MIGRATE=1 DOTNET_CLI_HOME=/tmp dotnet dotnet-ef database update
+DOTNET_CLI_HOME=/tmp dotnet dotnet-ef database update
 ```
 
 The app also runs `Database.Migrate()` on startup, so once the first migration exists it will apply pending migrations automatically.
@@ -101,7 +111,18 @@ DOTNET_CLI_HOME=/tmp dotnet run --launch-profile http
 To run only the live-aircraft path without background MySQL polling:
 
 ```bash
-SKIP_DB_MIGRATE=1 DISABLE_TRACK_SCHEDULE_WORKER=1 DOTNET_CLI_HOME=/tmp dotnet run --launch-profile http
+DOTNET_CLI_HOME=/tmp dotnet run --launch-profile http
+```
+
+Set the local runtime toggles first if you want that behavior:
+
+```json
+{
+  "Runtime": {
+    "DisableTrackScheduleWorker": true,
+    "SkipDbMigrate": true
+  }
+}
 ```
 
 The default local HTTP URL is:
