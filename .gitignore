@@ -4,3 +4,4 @@ obj/
 .worktrees/
 .DS_Store
 appsettings.Local.json
+*.DotSettings.user
