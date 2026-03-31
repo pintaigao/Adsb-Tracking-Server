@@ -35,13 +35,13 @@ The most important setting is:
 ConnectionStrings__Default="server=localhost;port=3306;database=adsb_tracker;user=hptg;password=your-password"
 ```
 
-For local secrets, copy the example file and keep the real value only in your local machine:
+For local secrets and machine-specific overrides, edit your local-only file directly:
 
 ```bash
-cp appsettings.Local.example.json appsettings.Local.json
+touch appsettings.Local.json
 ```
 
-Then edit `appsettings.Local.json` with your real MySQL password. That file is ignored by Git. Environment variables still override all JSON files when both are set.
+`appsettings.Local.json` is ignored by Git. Put your real MySQL password and machine-specific paths there.
 
 Optional path overrides:
 
@@ -62,7 +62,7 @@ FLIGHT_TRAINING_SERVER_BASE_URL="http://localhost:3000"
 FLIGHT_TRAINING_SERVER_SERVICE_TOKEN=""
 ```
 
-Runtime toggles now live in `appsettings.Local.json` as booleans:
+Runtime toggles live in `appsettings.Local.json` as booleans:
 
 ```json
 {
