@@ -8,8 +8,14 @@ using Microsoft.Extensions.Options;
 
 namespace ADSB.Tracker.Server.Services;
 
+/// <summary>
+/// Filters one daily raw jsonl log down to the points for a specific schedule and writes gx:Track KML.
+/// </summary>
 public sealed class TrackExportService(IOptions<TrackerStorageOptions> storageOptions)
 {
+    /// <summary>
+    /// Main export entry point used by TrackScheduleService after the raw file has been fetched locally.
+    /// </summary>
     public async Task<(int MatchedPointCount, string? OutputPath)> ExportAsync(
         string rawPath,
         string targetType,
@@ -45,6 +51,9 @@ public sealed class TrackExportService(IOptions<TrackerStorageOptions> storageOp
         return (points.Count, outputPath);
     }
 
+    /// <summary>
+    /// Stream the jsonl file line-by-line so large daily files do not need to be loaded into memory at once.
+    /// </summary>
     private static async Task<List<RawTrackPoint>> LoadFilteredPointsAsync(
         string rawPath,
         string targetType,
@@ -143,6 +152,9 @@ public sealed class TrackExportService(IOptions<TrackerStorageOptions> storageOp
         return string.IsNullOrWhiteSpace(sanitized) ? "track" : sanitized;
     }
 
+    /// <summary>
+    /// Build the KML payload that can later be downloaded directly or imported into Flight-Training.
+    /// </summary>
     private static string BuildKml(string displayName, string targetValue, IReadOnlyList<RawTrackPoint> points)
     {
         var startUtc = FormatUtc(points[0].Ts);

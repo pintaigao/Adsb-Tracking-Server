@@ -1,5 +1,9 @@
 namespace ADSB.Tracker.Server.Data.Entities;
 
+/// <summary>
+/// One concrete attempt to execute a schedule.
+/// Records where the raw log came from and whether a KML export was produced.
+/// </summary>
 public sealed class WatchExecution
 {
     public long Id { get; set; }
@@ -9,8 +13,20 @@ public sealed class WatchExecution
     public DateTime StartedAtUtc { get; set; }
     public DateTime? FinishedAtUtc { get; set; }
     public int MatchedPointCount { get; set; }
+
+    /// <summary>
+    /// Original source path. In SSH mode this is the remote Ubuntu path.
+    /// </summary>
     public string? RemoteRawPath { get; set; }
+
+    /// <summary>
+    /// Local working copy used by filtering/export logic.
+    /// </summary>
     public string? LocalRawPath { get; set; }
+
+    /// <summary>
+    /// Final KML output path when export succeeds.
+    /// </summary>
     public string? OutputKmlPath { get; set; }
     public string? ErrorMessage { get; set; }
     public DateTime CreatedAtUtc { get; set; }

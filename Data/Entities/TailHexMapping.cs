@@ -1,5 +1,8 @@
 namespace ADSB.Tracker.Server.Data.Entities;
 
+/// <summary>
+/// Optional helper table that resolves a tail number to the hex code found in raw ADS-B logs.
+/// </summary>
 public sealed class TailHexMapping
 {
     public long Id { get; set; }

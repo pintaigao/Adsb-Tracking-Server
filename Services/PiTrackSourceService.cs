@@ -4,10 +4,18 @@ using Microsoft.Extensions.Options;
 
 namespace ADSB.Tracker.Server.Services;
 
+/// <summary>
+/// Finds the daily raw ADS-B jsonl file for a schedule and copies it into the execution working directory.
+/// The source can be local disk or a remote Ubuntu host reached over scp.
+/// </summary>
 public sealed class PiTrackSourceService(
     IOptions<PiTrackSourceOptions> sourceOptions,
     IOptions<TrackerStorageOptions> storageOptions)
 {
+	/// <summary>
+	/// Always return a local working copy so downstream export code does not care whether the source
+	/// originally lived on this machine or on the Ubuntu receiver.
+	/// </summary>
 	public async Task<(string RemotePath, string LocalPath)?> FetchRawFileAsync(
 		DateOnly watchDateUtc,
 		long executionId,
@@ -31,6 +39,9 @@ public sealed class PiTrackSourceService(
         };
 	}
 
+    /// <summary>
+    /// Simple mode for co-located deployments: copy the daily file from a local raw directory.
+    /// </summary>
     private static async Task<(string RemotePath, string LocalPath)?> FetchLocalAsync(
         string rawRoot,
         string fileName,
@@ -55,6 +66,9 @@ public sealed class PiTrackSourceService(
         return (sourcePath, destinationPath);
     }
 
+    /// <summary>
+    /// Current Mac + Ubuntu mode: copy exactly one daily file over scp when a schedule executes.
+    /// </summary>
     private static async Task<(string RemotePath, string LocalPath)?> FetchRemoteOverScpAsync(
         PiTrackSourceOptions options,
         string fileName,

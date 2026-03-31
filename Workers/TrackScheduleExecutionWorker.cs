@@ -5,29 +5,23 @@ using Microsoft.Extensions.Options;
 namespace ADSB.Tracker.Server.Workers;
 
 public sealed class TrackScheduleExecutionWorker(
-    IServiceProvider serviceProvider,
-    IOptions<TrackerStorageOptions> storageOptions,
-    ILogger<TrackScheduleExecutionWorker> logger)
-    : BackgroundService
-{
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        var intervalSeconds = Math.Max(storageOptions.Value.PollIntervalSeconds, 15);
+	IServiceProvider serviceProvider,
+	IOptions<TrackerStorageOptions> storageOptions,
+	ILogger<TrackScheduleExecutionWorker> logger)
+	: BackgroundService {
+	protected override async Task ExecuteAsync(CancellationToken stoppingToken) {
+		var intervalSeconds = Math.Max(storageOptions.Value.PollIntervalSeconds, 15);
 
-        while (!stoppingToken.IsCancellationRequested)
-        {
-            try
-            {
-                using var scope = serviceProvider.CreateScope();
-                var service = scope.ServiceProvider.GetRequiredService<TrackScheduleService>();
-                await service.ExecuteDueSchedulesAsync(stoppingToken);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Track schedule execution worker iteration failed");
-            }
+		while (!stoppingToken.IsCancellationRequested) {
+			try {
+				using var scope = serviceProvider.CreateScope();
+				var service = scope.ServiceProvider.GetRequiredService<TrackScheduleService>();
+				await service.ExecuteDueSchedulesAsync(stoppingToken);
+			} catch (Exception ex) {
+				logger.LogError(ex, "Track schedule execution worker iteration failed");
+			}
 
-            await Task.Delay(TimeSpan.FromSeconds(intervalSeconds), stoppingToken);
-        }
-    }
+			await Task.Delay(TimeSpan.FromSeconds(intervalSeconds), stoppingToken);
+		}
+	}
 }
