@@ -6,10 +6,10 @@ using Microsoft.Extensions.Options;
 
 namespace ADSB.Tracker.Server.Services;
 
-/// <summary>
-/// Thin HTTP client for the Ubuntu feeder's live-aircraft endpoint.
-/// This path is real-time and intentionally separate from the schedule/raw-file pipeline.
-/// </summary>
+/*
+ * Thin HTTP client for the Ubuntu feeder's live-aircraft endpoint.
+ * This path is real-time and intentionally separate from the schedule/raw-file pipeline.
+ */
 public sealed class FeederLiveAircraftService(
     HttpClient httpClient,
     IOptions<FeederLiveAircraftOptions> options,
@@ -17,9 +17,7 @@ public sealed class FeederLiveAircraftService(
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
-    /// <summary>
-    /// Fetch one current live-aircraft snapshot from the feeder service.
-    /// </summary>
+    /* Fetch one current live-aircraft snapshot from the feeder service. */
     public async Task<LiveAircraftResponse> GetSnapshotAsync(CancellationToken cancellationToken)
     {
         var feederUrl = ResolveValue(configuration["FEEDER_LIVE_AIRCRAFT_URL"], options.Value.Url);

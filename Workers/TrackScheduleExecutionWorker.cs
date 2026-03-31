@@ -4,19 +4,19 @@ using Microsoft.Extensions.Options;
 
 namespace ADSB.Tracker.Server.Workers;
 
-/// <summary>
-/// Background loop that acts as the schedule "clock".
-/// Every poll interval it asks TrackScheduleService to execute UTC windows that are now due.
-/// </summary>
+/*
+ * Background loop that acts as the schedule "clock".
+ * Every poll interval it asks TrackScheduleService to execute UTC windows that are now due.
+ */
 public sealed class TrackScheduleExecutionWorker(
 	IServiceProvider serviceProvider,
 	IOptions<TrackerStorageOptions> storageOptions,
 	ILogger<TrackScheduleExecutionWorker> logger)
 	: BackgroundService {
-	/// <summary>
-	/// Resolve a fresh scoped TrackScheduleService each iteration so database and HTTP dependencies
-	/// follow normal scoped lifetimes.
-	/// </summary>
+	/*
+	 * Resolve a fresh scoped TrackScheduleService each iteration so database and HTTP dependencies
+	 * follow normal scoped lifetimes.
+	 */
 	protected override async Task ExecuteAsync(CancellationToken stoppingToken) {
 		var intervalSeconds = Math.Max(storageOptions.Value.PollIntervalSeconds, 15);
 

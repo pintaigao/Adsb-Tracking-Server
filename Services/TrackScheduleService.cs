@@ -7,14 +7,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ADSB.Tracker.Server.Services;
 
-/// <summary>
-/// Main application service for the scheduled-export side of ADSB-Tracker-Server.
-/// Controllers use it for schedule CRUD-like actions, and the background worker uses it to run due jobs.
-/// </summary>
+/*
+ * Main application service for the scheduled-export side of ADSB-Tracker-Server.
+ * Controllers use it for schedule CRUD-like actions, and the background worker uses it to run due jobs.
+ */
 public sealed class TrackScheduleService(AdsbTrackerDbContext dbContext, PiTrackSourceService piTrackSourceService, TrackExportService trackExportService, FlightImportService flightImportService, ILogger<TrackScheduleService> logger) {
-	/// <summary>
-	/// Create a new schedule definition. No raw data is read at this point.
-	/// </summary>
+	/* Create a new schedule definition. No raw data is read at this point. */
 	public async Task<TrackScheduleDetailResponse> CreateAsync(
 		string userId,
 		CreateTrackScheduleRequest request,
@@ -41,10 +39,10 @@ public sealed class TrackScheduleService(AdsbTrackerDbContext dbContext, PiTrack
 		return MapDetail(schedule, null, []);
 	}
 
-	/// <summary>
-	/// List active schedules and decorate them with their latest execution summary.
-	/// Archived schedules are excluded from the default UI list.
-	/// </summary>
+	/*
+	 * List active schedules and decorate them with their latest execution summary.
+	 * Archived schedules are excluded from the default UI list.
+	 */
 	public async Task<IReadOnlyList<TrackScheduleListItemResponse>> ListAsync(string userId, CancellationToken cancellationToken) {
 		var schedules = await dbContext.WatchSchedules
 			.AsNoTracking()
@@ -62,9 +60,7 @@ public sealed class TrackScheduleService(AdsbTrackerDbContext dbContext, PiTrack
 			.ToList();
 	}
 
-	/// <summary>
-	/// Load one schedule together with its execution history.
-	/// </summary>
+	/* Load one schedule together with its execution history. */
 	public async Task<TrackScheduleDetailResponse?> GetAsync(
 		string userId,
 		long id,
@@ -86,9 +82,7 @@ public sealed class TrackScheduleService(AdsbTrackerDbContext dbContext, PiTrack
 		return MapDetail(schedule, executions.FirstOrDefault(), executions);
 	}
 
-	/// <summary>
-	/// Cancel a schedule only while it is still waiting to run.
-	/// </summary>
+	/* Cancel a schedule only while it is still waiting to run. */
 	public async Task<bool> CancelAsync(string userId, long id, CancellationToken cancellationToken) {
 		var schedule = await dbContext.WatchSchedules
 			.FirstOrDefaultAsync(x => x.UserId == userId && x.Id == id, cancellationToken);
@@ -103,9 +97,7 @@ public sealed class TrackScheduleService(AdsbTrackerDbContext dbContext, PiTrack
 		return true;
 	}
 
-	/// <summary>
-	/// Soft-delete for finished schedules. The row stays in MySQL but the default list hides it.
-	/// </summary>
+	/* Soft-delete for finished schedules. The row stays in MySQL but the default list hides it. */
 	public async Task<bool> ArchiveAsync(string userId, long id, CancellationToken cancellationToken) {
 		var schedule = await dbContext.WatchSchedules
 			.FirstOrDefaultAsync(x => x.UserId == userId && x.Id == id, cancellationToken);
@@ -120,9 +112,7 @@ public sealed class TrackScheduleService(AdsbTrackerDbContext dbContext, PiTrack
 		return true;
 	}
 
-	/// <summary>
-	/// Return all execution attempts for a schedule.
-	/// </summary>
+	/* Return all execution attempts for a schedule. */
 	public async Task<IReadOnlyList<TrackExecutionResponse>?> ListExecutionsAsync(
 		string userId,
 		long scheduleId,
@@ -144,9 +134,7 @@ public sealed class TrackScheduleService(AdsbTrackerDbContext dbContext, PiTrack
 		return executions.Select(MapExecution).ToList();
 	}
 
-	/// <summary>
-	/// Resolve the export file for download if an execution produced one.
-	/// </summary>
+	/* Resolve the export file for download if an execution produced one. */
 	public async Task<(string FilePath, string DownloadName)?> GetExecutionDownloadAsync(
 		string userId,
 		long executionId,
@@ -162,9 +150,7 @@ public sealed class TrackScheduleService(AdsbTrackerDbContext dbContext, PiTrack
 		return (execution.OutputKmlPath, Path.GetFileName(execution.OutputKmlPath));
 	}
 
-	/// <summary>
-	/// Worker entry point: find schedules whose UTC end time has passed and execute them now.
-	/// </summary>
+	/* Worker entry point: find schedules whose UTC end time has passed and execute them now. */
 	public async Task ExecuteDueSchedulesAsync(CancellationToken cancellationToken) {
 		var now = DateTime.UtcNow;
 		var nowDate = DateOnly.FromDateTime(now);
@@ -181,10 +167,10 @@ public sealed class TrackScheduleService(AdsbTrackerDbContext dbContext, PiTrack
 		}
 	}
 
-	/// <summary>
-	/// Full schedule execution pipeline:
-	/// fetch raw data, filter/export KML, persist execution result, then notify Flight-Training.
-	/// </summary>
+	/*
+	 * Full schedule execution pipeline:
+	 * fetch raw data, filter/export KML, persist execution result, then notify Flight-Training.
+	 */
 	private async Task ExecuteSingleScheduleAsync(WatchSchedule schedule, CancellationToken cancellationToken) {
 		var now = DateTime.UtcNow;
 		schedule.Status = TrackScheduleStatuses.Running;
@@ -251,9 +237,7 @@ public sealed class TrackScheduleService(AdsbTrackerDbContext dbContext, PiTrack
 		}
 	}
 
-	/// <summary>
-	/// Tail-based schedules need an extra lookup because raw logs are usually keyed by hex code.
-	/// </summary>
+	/* Tail-based schedules need an extra lookup because raw logs are usually keyed by hex code. */
 	private async Task<string> ResolveTargetValueAsync(WatchSchedule schedule, CancellationToken cancellationToken) {
 		if (!string.Equals(schedule.TargetType, TrackTargetTypes.Tail, StringComparison.OrdinalIgnoreCase)) {
 			return schedule.TargetValue;
@@ -276,9 +260,9 @@ public sealed class TrackScheduleService(AdsbTrackerDbContext dbContext, PiTrack
 		|| string.Equals(status, TrackScheduleStatuses.Cancelled, StringComparison.OrdinalIgnoreCase)
 		|| string.Equals(status, TrackScheduleStatuses.Failed, StringComparison.OrdinalIgnoreCase);
 
-	/// <summary>
-	/// Keep API validation close to schedule creation so invalid UTC dates/times never hit the database.
-	/// </summary>
+	/*
+	 * Keep API validation close to schedule creation so invalid UTC dates/times never hit the database.
+	 */
 	private static NormalizedRequest NormalizeAndValidate(CreateTrackScheduleRequest request) {
 		var displayName = request.DisplayName.Trim();
 		if (string.IsNullOrWhiteSpace(displayName)) {
@@ -314,9 +298,7 @@ public sealed class TrackScheduleService(AdsbTrackerDbContext dbContext, PiTrack
 		return new NormalizedRequest(displayName, targetType, targetValue, watchDateUtc, startZulu, endZulu);
 	}
 
-	/// <summary>
-	/// Load latest executions in bulk so the list endpoint avoids one query per schedule.
-	/// </summary>
+	/* Load latest executions in bulk so the list endpoint avoids one query per schedule. */
 	private async Task<Dictionary<long, WatchExecution>> LoadLatestExecutionsAsync(
 		IReadOnlyList<WatchSchedule> schedules,
 		CancellationToken cancellationToken) {
