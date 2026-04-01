@@ -8,11 +8,7 @@ namespace ADSB.Tracker.Server.Workers;
  * 这是后台循环，相当于 schedule 系统的“时钟”。
  * 每次轮询时，它都会让 TrackScheduleService 执行那些已经到期的 UTC 时间窗口。
  */
-public sealed class TrackScheduleExecutionWorker(
-	IServiceProvider serviceProvider,
-	IOptions<TrackerStorageOptions> storageOptions,
-	ILogger<TrackScheduleExecutionWorker> logger)
-	: BackgroundService {
+public sealed class TrackScheduleExecutionWorker(IServiceProvider serviceProvider, IOptions<TrackerStorageOptions> storageOptions, ILogger<TrackScheduleExecutionWorker> logger) : BackgroundService {
 	/*
 	 * 每一轮都解析一个新的 scoped TrackScheduleService，
 	 * 这样数据库和 HTTP 依赖可以保持正常的 scoped 生命周期。
