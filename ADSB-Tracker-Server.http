@@ -3,13 +3,13 @@
 @ScheduleId = 1
 @ExecutionId = 1
 
-GET {{ADSB_Tracker_Server_HostAddress}}/adsb/flights/track-schedules
+GET {{ADSB_Tracker_Server_HostAddress}}/api/v1/adsb/flights/track-schedules
 Accept: application/json
 X-User-Id: {{UserId}}
 
 ###
 
-POST {{ADSB_Tracker_Server_HostAddress}}/adsb/flights/track-schedules
+POST {{ADSB_Tracker_Server_HostAddress}}/api/v1/adsb/flights/track-schedules
 Content-Type: application/json
 Accept: application/json
 X-User-Id: {{UserId}}
@@ -25,30 +25,30 @@ X-User-Id: {{UserId}}
 
 ###
 
-GET {{ADSB_Tracker_Server_HostAddress}}/adsb/flights/track-schedules/{{ScheduleId}}
+GET {{ADSB_Tracker_Server_HostAddress}}/api/v1/adsb/flights/track-schedules/{{ScheduleId}}
 Accept: application/json
 X-User-Id: {{UserId}}
 
 ###
 
-POST {{ADSB_Tracker_Server_HostAddress}}/adsb/flights/track-schedules/{{ScheduleId}}/cancel
+POST {{ADSB_Tracker_Server_HostAddress}}/api/v1/adsb/flights/track-schedules/{{ScheduleId}}/cancel
 Accept: application/json
 X-User-Id: {{UserId}}
 
 ###
 
-GET {{ADSB_Tracker_Server_HostAddress}}/adsb/flights/track-schedules/{{ScheduleId}}/executions
+GET {{ADSB_Tracker_Server_HostAddress}}/api/v1/adsb/flights/track-schedules/{{ScheduleId}}/executions
 Accept: application/json
 X-User-Id: {{UserId}}
 
 ###
 
-GET {{ADSB_Tracker_Server_HostAddress}}/adsb/flights/track-schedules/executions/{{ExecutionId}}/download
+GET {{ADSB_Tracker_Server_HostAddress}}/api/v1/adsb/flights/track-schedules/executions/{{ExecutionId}}/download
 X-User-Id: {{UserId}}
 
 ###
 
-GET {{ADSB_Tracker_Server_HostAddress}}/adsb/flights/live-aircraft
+GET {{ADSB_Tracker_Server_HostAddress}}/api/v1/adsb/flights/live-aircraft
 Accept: application/json
 
 ###
