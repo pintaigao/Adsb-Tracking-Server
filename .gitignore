@@ -3,5 +3,6 @@ obj/
 .idea/
 .worktrees/
 .DS_Store
+appsettings.Production.json
 appsettings.Local.json
 *.DotSettings.user

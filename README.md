@@ -25,7 +25,6 @@ CREATE DATABASE adsb_tracker;
 The service reads configuration from:
 
 - `appsettings.json`
-- `appsettings.Development.json`
 - `appsettings.Local.json` (optional, local-only, ignored by Git)
 - environment variables
 
@@ -35,13 +34,15 @@ The most important setting is:
 ConnectionStrings__Default="server=localhost;port=3306;database=adsb_tracker;user=hptg;password=your-password"
 ```
 
-For local secrets and machine-specific overrides, edit your local-only file directly:
+For local development secrets and machine-specific overrides, edit your local-only file directly:
 
 ```bash
 touch appsettings.Local.json
 ```
 
-`appsettings.Local.json` is ignored by Git. Put your real MySQL password and machine-specific paths there.
+`appsettings.Local.json` is ignored by Git. Put your real MySQL password, local paths, and any development-only overrides there.
+
+Use `appsettings.Local.json` as the single development override file. You do not need a separate `appsettings.Development.json`.
 
 Optional path overrides:
 
@@ -79,6 +80,47 @@ Runtime toggles live in `appsettings.Local.json` as booleans:
 - `ssh`: uses `scp` to copy one daily `jsonl` from the remote Ubuntu host into the local working directory on demand
 
 For your current Mac + Ubuntu setup, `ssh` mode is the intended path. Make sure key-based SSH login from the Mac to the Ubuntu host works non-interactively before running schedules.
+
+## Production configuration
+
+For production, prefer `appsettings.Production.json` over `appsettings.Local.json`.
+
+Set:
+
+```bash
+ASPNETCORE_ENVIRONMENT=Production
+```
+
+ASP.NET Core will then load:
+
+- `appsettings.json`
+- `appsettings.Production.json`
+- environment variables
+
+A committed placeholder template now lives at:
+
+```text
+appsettings.Production.json
+```
+
+Recommended production defaults:
+
+- `PiTrackSource.Mode = local`
+- `Runtime.DisableTrackScheduleWorker = false`
+- `Runtime.SkipDbMigrate = true`
+
+Fields you must replace before running in production:
+
+- `ConnectionStrings:Default`
+- `PiTrackSource:RawRootPath`
+- `FeederLiveAircraft:Url` if your feeder endpoint differs
+- `FlightTrainingServer:BaseUrl` and `FlightTrainingServer:ServiceToken` if callback import is enabled
+
+Notes:
+
+- Leave `FlightTrainingServer.BaseUrl` empty if you do not want ADSB schedule exports to callback into `Flight-Training-Server`.
+- Do not commit real database passwords, service tokens, or machine-specific secrets to Git.
+- On the production host, keep the real `appsettings.Production.json` alongside the published app or inject the same keys via environment variables.
 
 ## EF Core migrations
 
